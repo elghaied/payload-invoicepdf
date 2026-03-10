@@ -1,113 +1,110 @@
-import type { CollectionSlug, Config } from 'payload'
+import type { Config } from 'payload'
+import type { InvoicePdfConfig } from './types.js'
+import { sanitizeConfig } from './defaults.js'
+import { shopInfoGlobal } from './globals/shop-info.js'
+import { createInvoicesCollection } from './collections/invoices.js'
+import { createQuotesCollection } from './collections/quotes.js'
+import { createGeneratePdfEndpoint } from './endpoints/generate-pdf.js'
+import { createConvertToInvoiceEndpoint } from './endpoints/convert-to-invoice.js'
 
-import { customEndpointHandler } from './endpoints/customEndpointHandler.js'
-
-export type PayloadInvoicepdfConfig = {
-  /**
-   * List of collections to add a custom field
-   */
-  collections?: Partial<Record<CollectionSlug, true>>
-  disabled?: boolean
-}
-
-export const payloadInvoicepdf =
-  (pluginOptions: PayloadInvoicepdfConfig) =>
+export const invoicePdf =
+  (pluginOptions: InvoicePdfConfig) =>
   (config: Config): Config => {
-    if (!config.collections) {
-      config.collections = []
+    const pluginConfig = sanitizeConfig(pluginOptions)
+
+    // Always add collections/globals for schema consistency
+    if (!config.collections) config.collections = []
+    if (!config.globals) config.globals = []
+
+    config.globals.push(shopInfoGlobal)
+
+    // Create collections — pass disabled flag so they can omit hooks when disabled
+    const invoicesCollection = createInvoicesCollection(pluginConfig)
+    const quotesCollection = createQuotesCollection(pluginConfig)
+
+    if (pluginConfig.disabled) {
+      // Strip hooks when disabled — keep schema only
+      invoicesCollection.hooks = {}
+      quotesCollection.hooks = {}
     }
 
-    config.collections.push({
-      slug: 'plugin-collection',
-      fields: [
+    config.collections.push(invoicesCollection)
+    config.collections.push(quotesCollection)
+
+    if (pluginConfig.disabled) return config
+
+    // Endpoints
+    if (!config.endpoints) config.endpoints = []
+    config.endpoints.push(createGeneratePdfEndpoint(pluginConfig))
+    config.endpoints.push(createConvertToInvoiceEndpoint(pluginConfig))
+
+    // Admin components — inject UI fields into the collections for sidebar buttons
+    const invoiceCol = config.collections.find((c) => c.slug === 'invoices')
+    if (invoiceCol) {
+      invoiceCol.fields.push(
         {
-          name: 'id',
-          type: 'text',
-        },
-      ],
-    })
-
-    if (pluginOptions.collections) {
-      for (const collectionSlug in pluginOptions.collections) {
-        const collection = config.collections.find(
-          (collection) => collection.slug === collectionSlug,
-        )
-
-        if (collection) {
-          collection.fields.push({
-            name: 'addedByPlugin',
-            type: 'text',
-            admin: {
-              position: 'sidebar',
+          name: 'downloadPdf',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#DownloadPdfButton',
             },
-          })
-        }
-      }
-    }
-
-    /**
-     * If the plugin is disabled, we still want to keep added collections/fields so the database schema is consistent which is important for migrations.
-     * If your plugin heavily modifies the database schema, you may want to remove this property.
-     */
-    if (pluginOptions.disabled) {
-      return config
-    }
-
-    if (!config.endpoints) {
-      config.endpoints = []
-    }
-
-    if (!config.admin) {
-      config.admin = {}
-    }
-
-    if (!config.admin.components) {
-      config.admin.components = {}
-    }
-
-    if (!config.admin.components.beforeDashboard) {
-      config.admin.components.beforeDashboard = []
-    }
-
-    config.admin.components.beforeDashboard.push(
-      `payload-invoicepdf/client#BeforeDashboardClient`,
-    )
-    config.admin.components.beforeDashboard.push(
-      `payload-invoicepdf/rsc#BeforeDashboardServer`,
-    )
-
-    config.endpoints.push({
-      handler: customEndpointHandler,
-      method: 'get',
-      path: '/my-plugin-endpoint',
-    })
-
-    const incomingOnInit = config.onInit
-
-    config.onInit = async (payload) => {
-      // Ensure we are executing any existing onInit functions before running our own.
-      if (incomingOnInit) {
-        await incomingOnInit(payload)
-      }
-
-      const { totalDocs } = await payload.count({
-        collection: 'plugin-collection',
-        where: {
-          id: {
-            equals: 'seeded-by-plugin',
           },
         },
-      })
-
-      if (totalDocs === 0) {
-        await payload.create({
-          collection: 'plugin-collection',
-          data: {
-            id: 'seeded-by-plugin',
+        {
+          name: 'generatePdf',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#GeneratePdfButton',
+            },
           },
-        })
-      }
+        },
+      )
+    }
+
+    const quotesCol = config.collections.find((c) => c.slug === 'quotes')
+    if (quotesCol) {
+      quotesCol.fields.push(
+        {
+          name: 'downloadPdf',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#DownloadPdfButton',
+            },
+          },
+        },
+        {
+          name: 'generatePdf',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#GeneratePdfButton',
+            },
+          },
+        },
+        {
+          name: 'convertToInvoice',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#ConvertToInvoiceButton',
+            },
+          },
+        },
+      )
     }
 
     return config
   }
+
+// Re-export types and templates for consumers
+export type { InvoicePdfConfig, InvoiceTemplate, InvoiceTemplateProps } from './types.js'
+export { builtInTemplates, classicTemplate, modernTemplate, minimalTemplate, boldTemplate } from './templates/index.js'
+export { ClassicTemplate, ModernTemplate, MinimalTemplate, BoldTemplate } from './templates/index.js'

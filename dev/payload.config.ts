@@ -3,7 +3,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import path from 'path'
 import { buildConfig } from 'payload'
-import { payloadInvoicepdf } from 'payload-invoicepdf'
+import { invoicePdf, builtInTemplates } from 'payload-invoicepdf'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
@@ -37,12 +37,18 @@ const buildConfigWithMemoryDB = async () => {
     },
     collections: [
       {
-        slug: 'posts',
-        fields: [],
+        slug: 'products',
+        admin: { useAsTitle: 'name' },
+        fields: [
+          { name: 'name', type: 'text', required: true },
+          { name: 'price', type: 'number', required: true },
+          { name: 'sku', type: 'text' },
+          { name: 'description', type: 'textarea' },
+        ],
       },
       {
         slug: 'media',
-        fields: [],
+        fields: [{ name: 'alt', type: 'text' }],
         upload: {
           staticDir: path.resolve(dirname, 'media'),
         },
@@ -58,10 +64,15 @@ const buildConfigWithMemoryDB = async () => {
       await seed(payload)
     },
     plugins: [
-      payloadInvoicepdf({
-        collections: {
-          posts: true,
+      invoicePdf({
+        productCollection: 'products',
+        productFieldMapping: {
+          name: 'name',
+          price: 'price',
+          ref: 'sku',
+          description: 'description',
         },
+        templates: builtInTemplates,
       }),
     ],
     secret: process.env.PAYLOAD_SECRET || 'test-secret_key',

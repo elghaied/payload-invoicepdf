@@ -1,52 +1,85 @@
 import type { Payload } from 'payload'
-
 import config from '@payload-config'
-import { createPayloadRequest, getPayload } from 'payload'
+import { getPayload } from 'payload'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
-
 let payload: Payload
-
-afterAll(async () => {
-  await payload.destroy()
-})
 
 beforeAll(async () => {
   payload = await getPayload({ config })
 })
 
-describe('Plugin integration tests', () => {
-  test('should query custom endpoint added by plugin', async () => {
-    const request = new Request('http://localhost:3000/api/my-plugin-endpoint', {
-      method: 'GET',
-    })
+afterAll(async () => {
+  if (payload.db?.destroy) {
+    await payload.db.destroy()
+  }
+})
 
-    const payloadRequest = await createPayloadRequest({ config, request })
-    const response = await customEndpointHandler(payloadRequest)
-    expect(response.status).toBe(200)
-
-    const data = await response.json()
-    expect(data).toMatchObject({
-      message: 'Hello from custom endpoint',
-    })
+describe('payload-invoicepdf plugin', () => {
+  test('should register invoices collection', () => {
+    expect(payload.collections['invoices']).toBeDefined()
   })
 
-  test('can create post with custom text field added by plugin', async () => {
-    const post = await payload.create({
-      collection: 'posts',
+  test('should register quotes collection', () => {
+    expect(payload.collections['quotes']).toBeDefined()
+  })
+
+  test('should register shop-info global', async () => {
+    const shopInfo = await payload.findGlobal({ slug: 'shop-info' as any })
+    expect(shopInfo).toBeDefined()
+  })
+
+  test('should auto-generate invoice number on create', async () => {
+    const invoice = await payload.create({
+      collection: 'invoices' as any,
       data: {
-        addedByPlugin: 'added by plugin',
+        status: 'draft',
+        issueDate: new Date().toISOString(),
+        client: { name: 'Test Client' },
+        items: [
+          { description: 'Test item', quantity: 2, unitPrice: 100, taxRate: 0.2 },
+        ],
       },
     })
-    expect(post.addedByPlugin).toBe('added by plugin')
+
+    const doc = invoice as any
+    expect(doc.invoiceNumber).toMatch(/^INV-\d{4}-\d{4}$/)
   })
 
-  test('plugin creates and seeds plugin-collection', async () => {
-    expect(payload.collections['plugin-collection']).toBeDefined()
+  test('should calculate totals correctly', async () => {
+    const invoice = await payload.create({
+      collection: 'invoices' as any,
+      data: {
+        status: 'draft',
+        issueDate: new Date().toISOString(),
+        client: { name: 'Test Client' },
+        items: [
+          { description: 'Item A', quantity: 2, unitPrice: 100, taxRate: 0.2 },
+          { description: 'Item B', quantity: 1, unitPrice: 50, taxRate: 0.1 },
+        ],
+      },
+    })
 
-    const { docs } = await payload.find({ collection: 'plugin-collection' })
+    const doc = invoice as any
+    expect(doc.subtotal).toBe(250) // (2*100) + (1*50)
+    expect(doc.taxTotal).toBe(45)  // (200*0.2) + (50*0.1)
+    expect(doc.total).toBe(295)    // 250 + 45
+  })
 
-    expect(docs).toHaveLength(1)
+  test('should auto-generate quote number on create', async () => {
+    const quote = await payload.create({
+      collection: 'quotes' as any,
+      data: {
+        status: 'draft',
+        issueDate: new Date().toISOString(),
+        client: { name: 'Test Client' },
+        items: [
+          { description: 'Quote item', quantity: 1, unitPrice: 500, taxRate: 0.2 },
+        ],
+      },
+    })
+
+    const doc = quote as any
+    expect(doc.quoteNumber).toMatch(/^QT-\d{4}-\d{4}$/)
   })
 })

@@ -115,5 +115,7 @@
     ]
   },
   "registry": "https://registry.npmjs.org/",
-  "dependencies": {}
+  "dependencies": {
+    "@react-pdf/renderer": "^4.3.2"
+  }
 }
