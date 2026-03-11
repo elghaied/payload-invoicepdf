@@ -103,12 +103,38 @@ export const createGeneratePdfEndpoint = (
         type === 'invoice'
           ? (doc as any).invoiceNumber
           : (doc as any).quoteNumber
+      const fileName = `${docNumber || type}.pdf`
+
+      // Upload PDF to media collection and update document pdfUrl
+      const file = {
+        data: pdfBuffer,
+        mimetype: 'application/pdf',
+        name: fileName,
+        size: pdfBuffer.length,
+      }
+
+      const mediaDoc = await req.payload.create({
+        collection: pluginConfig.mediaCollection as any,
+        data: { alt: fileName },
+        file,
+        req,
+      })
+
+      const pdfUrl = (mediaDoc as any).url || `/api/${pluginConfig.mediaCollection}/file/${fileName}`
+
+      await req.payload.update({
+        collection: collectionSlug as any,
+        id,
+        data: { pdfUrl },
+        context: { skipPdfGeneration: true },
+        req,
+      })
 
       return new Response(pdfBuffer, {
         status: 200,
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="${docNumber || type}.pdf"`,
+          'Content-Disposition': `attachment; filename="${fileName}"`,
           'Content-Length': String(pdfBuffer.length),
         },
       })

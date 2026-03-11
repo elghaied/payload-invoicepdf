@@ -50,6 +50,9 @@ export const GeneratePdfButton: React.FC = () => {
 
   return (
     <div style={{ marginBottom: 16 }}>
+      <p style={{ fontSize: 12, marginBottom: 8, color: '#888', lineHeight: 1.4 }}>
+        Save your changes before generating — unsaved edits won't appear in the PDF.
+      </p>
       <button
         type="button"
         onClick={handleGenerate}
