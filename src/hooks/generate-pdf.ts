@@ -102,7 +102,7 @@ export const createGeneratePdfHook =
       const existingPdfs = (Array.isArray(doc.generatedPdfs) ? doc.generatedPdfs : [])
         .map((entry: any) => (typeof entry === 'object' ? entry.id : entry))
 
-      await req.payload.update({
+      const updatedDoc = await req.payload.update({
         collection: collectionSlug as any,
         id: doc.id,
         data: { generatedPdfs: [mediaDoc.id, ...existingPdfs] },
@@ -110,7 +110,7 @@ export const createGeneratePdfHook =
         req,
       })
 
-      doc.generatedPdfs = [mediaDoc.id, ...existingPdfs]
+      return updatedDoc
     } catch (error) {
       req.payload.logger.error({
         msg: `Failed to generate PDF for ${type} ${doc.id}`,

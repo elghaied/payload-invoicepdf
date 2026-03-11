@@ -104,8 +104,15 @@ export const createSendEmailEndpoint = (
       }
 
       // Build props and render email HTML
+      const serverUrl =
+        req.payload.config.serverURL ||
+        process.env.NEXT_PUBLIC_SERVER_URL ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        ''
+
       const emailProps = buildEmailTemplateProps({
         doc: doc as any,
+        serverUrl,
         shopInfo: shopInfo as any,
         type,
         viewUrl,
