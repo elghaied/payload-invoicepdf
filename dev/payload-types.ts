@@ -6,14 +6,71 @@
  * and re-run `payload generate:types` to regenerate this file.
  */
 
+/**
+ * Supported timezones in IANA format.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "supportedTimezones".
+ */
+export type SupportedTimezones =
+  | 'Pacific/Midway'
+  | 'Pacific/Niue'
+  | 'Pacific/Honolulu'
+  | 'Pacific/Rarotonga'
+  | 'America/Anchorage'
+  | 'Pacific/Gambier'
+  | 'America/Los_Angeles'
+  | 'America/Tijuana'
+  | 'America/Denver'
+  | 'America/Phoenix'
+  | 'America/Chicago'
+  | 'America/Guatemala'
+  | 'America/New_York'
+  | 'America/Bogota'
+  | 'America/Caracas'
+  | 'America/Santiago'
+  | 'America/Buenos_Aires'
+  | 'America/Sao_Paulo'
+  | 'Atlantic/South_Georgia'
+  | 'Atlantic/Azores'
+  | 'Atlantic/Cape_Verde'
+  | 'Europe/London'
+  | 'Europe/Berlin'
+  | 'Africa/Lagos'
+  | 'Europe/Athens'
+  | 'Africa/Cairo'
+  | 'Europe/Moscow'
+  | 'Asia/Riyadh'
+  | 'Asia/Dubai'
+  | 'Asia/Baku'
+  | 'Asia/Karachi'
+  | 'Asia/Tashkent'
+  | 'Asia/Calcutta'
+  | 'Asia/Dhaka'
+  | 'Asia/Almaty'
+  | 'Asia/Jakarta'
+  | 'Asia/Bangkok'
+  | 'Asia/Shanghai'
+  | 'Asia/Singapore'
+  | 'Asia/Tokyo'
+  | 'Asia/Seoul'
+  | 'Australia/Brisbane'
+  | 'Australia/Sydney'
+  | 'Pacific/Guam'
+  | 'Pacific/Noumea'
+  | 'Pacific/Auckland'
+  | 'Pacific/Fiji';
+
 export interface Config {
   auth: {
     users: UserAuthOperations;
   };
+  blocks: {};
   collections: {
-    posts: Post;
+    products: Product;
     media: Media;
-    'plugin-collection': PluginCollection;
+    invoices: Invoice;
+    quotes: Quote;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -21,9 +78,10 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    posts: PostsSelect<false> | PostsSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    'plugin-collection': PluginCollectionSelect<false> | PluginCollectionSelect<true>;
+    invoices: InvoicesSelect<false> | InvoicesSelect<true>;
+    quotes: QuotesSelect<false> | QuotesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -32,8 +90,12 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'shop-info': ShopInfo;
+  };
+  globalsSelect: {
+    'shop-info': ShopInfoSelect<false> | ShopInfoSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -63,11 +125,14 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
+ * via the `definition` "products".
  */
-export interface Post {
+export interface Product {
   id: string;
-  addedByPlugin?: string | null;
+  name: string;
+  price: number;
+  sku?: string | null;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -77,6 +142,7 @@ export interface Post {
  */
 export interface Media {
   id: string;
+  alt?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -91,10 +157,89 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "plugin-collection".
+ * via the `definition` "invoices".
  */
-export interface PluginCollection {
+export interface Invoice {
   id: string;
+  invoiceNumber?: string | null;
+  status?: ('draft' | 'sent' | 'paid' | 'overdue' | 'cancelled') | null;
+  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold') | null;
+  issueDate?: string | null;
+  dueDate?: string | null;
+  client: {
+    name: string;
+    email?: string | null;
+    address?: {
+      street?: string | null;
+      city?: string | null;
+      postalCode?: string | null;
+      country?: string | null;
+    };
+    vatNumber?: string | null;
+  };
+  items?:
+    | {
+        /**
+         * Optional — select a product to auto-fill fields
+         */
+        product?: (string | null) | Product;
+        description: string;
+        quantity: number;
+        unitPrice: number;
+        taxRate?: number | null;
+        lineTotal?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  notes?: string | null;
+  subtotal?: number | null;
+  taxTotal?: number | null;
+  total?: number | null;
+  pdfUrl?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quotes".
+ */
+export interface Quote {
+  id: string;
+  quoteNumber?: string | null;
+  status?: ('draft' | 'sent' | 'accepted' | 'rejected' | 'expired') | null;
+  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold') | null;
+  issueDate?: string | null;
+  validUntil?: string | null;
+  client: {
+    name: string;
+    email?: string | null;
+    address?: {
+      street?: string | null;
+      city?: string | null;
+      postalCode?: string | null;
+      country?: string | null;
+    };
+    vatNumber?: string | null;
+  };
+  items?:
+    | {
+        /**
+         * Optional — select a product to auto-fill fields
+         */
+        product?: (string | null) | Product;
+        description: string;
+        quantity: number;
+        unitPrice: number;
+        taxRate?: number | null;
+        lineTotal?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  notes?: string | null;
+  subtotal?: number | null;
+  taxTotal?: number | null;
+  total?: number | null;
+  pdfUrl?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -123,16 +268,20 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
-        relationTo: 'posts';
-        value: string | Post;
+        relationTo: 'products';
+        value: string | Product;
       } | null)
     | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
     | ({
-        relationTo: 'plugin-collection';
-        value: string | PluginCollection;
+        relationTo: 'invoices';
+        value: string | Invoice;
+      } | null)
+    | ({
+        relationTo: 'quotes';
+        value: string | Quote;
       } | null)
     | ({
         relationTo: 'users';
@@ -182,10 +331,13 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts_select".
+ * via the `definition` "products_select".
  */
-export interface PostsSelect<T extends boolean = true> {
-  addedByPlugin?: T;
+export interface ProductsSelect<T extends boolean = true> {
+  name?: T;
+  price?: T;
+  sku?: T;
+  description?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -194,6 +346,7 @@ export interface PostsSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  alt?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -208,10 +361,89 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "plugin-collection_select".
+ * via the `definition` "invoices_select".
  */
-export interface PluginCollectionSelect<T extends boolean = true> {
-  id?: T;
+export interface InvoicesSelect<T extends boolean = true> {
+  invoiceNumber?: T;
+  status?: T;
+  template?: T;
+  issueDate?: T;
+  dueDate?: T;
+  client?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        address?:
+          | T
+          | {
+              street?: T;
+              city?: T;
+              postalCode?: T;
+              country?: T;
+            };
+        vatNumber?: T;
+      };
+  items?:
+    | T
+    | {
+        product?: T;
+        description?: T;
+        quantity?: T;
+        unitPrice?: T;
+        taxRate?: T;
+        lineTotal?: T;
+        id?: T;
+      };
+  notes?: T;
+  subtotal?: T;
+  taxTotal?: T;
+  total?: T;
+  pdfUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quotes_select".
+ */
+export interface QuotesSelect<T extends boolean = true> {
+  quoteNumber?: T;
+  status?: T;
+  template?: T;
+  issueDate?: T;
+  validUntil?: T;
+  client?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        address?:
+          | T
+          | {
+              street?: T;
+              city?: T;
+              postalCode?: T;
+              country?: T;
+            };
+        vatNumber?: T;
+      };
+  items?:
+    | T
+    | {
+        product?: T;
+        description?: T;
+        quantity?: T;
+        unitPrice?: T;
+        taxRate?: T;
+        lineTotal?: T;
+        id?: T;
+      };
+  notes?: T;
+  subtotal?: T;
+  taxTotal?: T;
+  total?: T;
+  pdfUrl?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -261,6 +493,62 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-info".
+ */
+export interface ShopInfo {
+  id: string;
+  companyName: string;
+  companyLogo?: (string | null) | Media;
+  address?: {
+    street?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  };
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  vatNumber?: string | null;
+  siret?: string | null;
+  iban?: string | null;
+  bic?: string | null;
+  bankName?: string | null;
+  legalMentions?: string | null;
+  defaultPaymentTerms?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shop-info_select".
+ */
+export interface ShopInfoSelect<T extends boolean = true> {
+  companyName?: T;
+  companyLogo?: T;
+  address?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        postalCode?: T;
+        country?: T;
+      };
+  phone?: T;
+  email?: T;
+  website?: T;
+  vatNumber?: T;
+  siret?: T;
+  iban?: T;
+  bic?: T;
+  bankName?: T;
+  legalMentions?: T;
+  defaultPaymentTerms?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

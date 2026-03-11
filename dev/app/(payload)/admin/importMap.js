@@ -1,9 +1,9 @@
-import { BeforeDashboardClient as BeforeDashboardClient_fc6e7dd366b9e2c8ce77d31252122343 } from 'payload-invoicepdf/client'
-import { BeforeDashboardServer as BeforeDashboardServer_c4406fcca100b2553312c5a3d7520a3f } from 'payload-invoicepdf/rsc'
+import { DownloadPdfButton as DownloadPdfButton_5c138208fc6a6657e86a40fe5d8ab8c0 } from 'payload-invoicepdf/client'
+import { GeneratePdfButton as GeneratePdfButton_5c138208fc6a6657e86a40fe5d8ab8c0 } from 'payload-invoicepdf/client'
+import { ConvertToInvoiceButton as ConvertToInvoiceButton_5c138208fc6a6657e86a40fe5d8ab8c0 } from 'payload-invoicepdf/client'
 
 export const importMap = {
-  'payload-invoicepdf/client#BeforeDashboardClient':
-    BeforeDashboardClient_fc6e7dd366b9e2c8ce77d31252122343,
-  'payload-invoicepdf/rsc#BeforeDashboardServer':
-    BeforeDashboardServer_c4406fcca100b2553312c5a3d7520a3f,
+  "payload-invoicepdf/client#DownloadPdfButton": DownloadPdfButton_5c138208fc6a6657e86a40fe5d8ab8c0,
+  "payload-invoicepdf/client#GeneratePdfButton": GeneratePdfButton_5c138208fc6a6657e86a40fe5d8ab8c0,
+  "payload-invoicepdf/client#ConvertToInvoiceButton": ConvertToInvoiceButton_5c138208fc6a6657e86a40fe5d8ab8c0
 }
