@@ -25,6 +25,26 @@ export interface InvoicePdfConfig {
   defaultPaymentTerms?: number
   /** Collection slug for PDF file uploads, default 'media' */
   mediaCollection?: string
+  /** Slug of an existing customer/user collection for autofill */
+  customerCollection?: string
+  /** Maps customer collection fields to invoice client fields */
+  customerFieldMapping?: {
+    /** Field name or array of field names to concatenate with space */
+    name: string | string[]
+    email?: string
+    vatNumber?: string
+    address?: {
+      street?: string
+      city?: string
+      postalCode?: string
+      country?: string
+    }
+  }
+  /** Filter options for the customer relationship dropdown (e.g., { role: { equals: 'customer' } }) */
+  customerFilterOptions?: Record<string, any>
+  /** When true (default), customer selection fills editable inline fields.
+   *  When false, inline client fields are removed — data is resolved from the customer record. */
+  inlineClientFields?: boolean
   /** Disable the plugin (keeps schema for migrations) */
   disabled?: boolean
 }
@@ -98,6 +118,20 @@ export interface SanitizedInvoicePdfConfig {
   defaultPaymentTerms: number
   mediaCollection: string
   disabled: boolean
+  customerCollection?: string
+  customerFieldMapping?: {
+    name: string | string[]
+    email?: string
+    vatNumber?: string
+    address?: {
+      street?: string
+      city?: string
+      postalCode?: string
+      country?: string
+    }
+  }
+  customerFilterOptions?: Record<string, any>
+  inlineClientFields: boolean
 }
 
 /** Plugin type alias for Payload */
