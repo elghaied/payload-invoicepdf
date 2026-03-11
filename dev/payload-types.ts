@@ -225,7 +225,7 @@ export interface Invoice {
   subtotal?: number | null;
   taxTotal?: number | null;
   total?: number | null;
-  pdfUrl?: string | null;
+  generatedPdfs?: (string | Media)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -279,7 +279,7 @@ export interface Quote {
   subtotal?: number | null;
   taxTotal?: number | null;
   total?: number | null;
-  pdfUrl?: string | null;
+  generatedPdfs?: (string | Media)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -463,7 +463,7 @@ export interface InvoicesSelect<T extends boolean = true> {
   subtotal?: T;
   taxTotal?: T;
   total?: T;
-  pdfUrl?: T;
+  generatedPdfs?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -508,7 +508,7 @@ export interface QuotesSelect<T extends boolean = true> {
   subtotal?: T;
   taxTotal?: T;
   total?: T;
-  pdfUrl?: T;
+  generatedPdfs?: T;
   updatedAt?: T;
   createdAt?: T;
 }
