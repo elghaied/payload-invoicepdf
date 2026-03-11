@@ -4,6 +4,7 @@
   "description": "A blank template to get started with Payload 3.0",
   "license": "MIT",
   "type": "module",
+  "packageManager": "pnpm@10.30.1",
   "exports": {
     ".": {
       "import": "./src/index.ts",
@@ -39,13 +40,16 @@
     "generate:importmap": "pnpm dev:generate-importmap",
     "generate:types": "pnpm dev:generate-types",
     "launch": "pnpm generate:importmap && pnpm generate:types && pnpm build && pnpm dev",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
     "lint": "eslint",
     "lint:fix": "eslint ./src --fix",
     "test": "pnpm test:int && pnpm test:e2e",
     "test:e2e": "playwright test",
-    "test:int": "vitest"
+    "test:int": "vitest --run"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.30.0",
     "@eslint/eslintrc": "^3.2.0",
     "@payloadcms/db-mongodb": "3.79.0",
     "@payloadcms/db-postgres": "3.79.0",
