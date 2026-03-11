@@ -109,7 +109,7 @@ export const createSendEmailEndpoint = (
         viewUrl,
       })
 
-      const html = renderEmailToHtml(emailTemplate, emailProps)
+      const html = await renderEmailToHtml(emailTemplate, emailProps)
 
       // Build email options
       const from = emailAdapter.defaultFromName
