@@ -8,6 +8,7 @@ import { SendEmailButton as SendEmailButton_5c138208fc6a6657e86a40fe5d8ab8c0 } f
 import { RelatedQuote as RelatedQuote_5c138208fc6a6657e86a40fe5d8ab8c0 } from 'payload-invoicepdf/client'
 import { ConvertToInvoiceButton as ConvertToInvoiceButton_5c138208fc6a6657e86a40fe5d8ab8c0 } from 'payload-invoicepdf/client'
 import { RelatedInvoices as RelatedInvoices_5c138208fc6a6657e86a40fe5d8ab8c0 } from 'payload-invoicepdf/client'
+import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
   "payload-invoicepdf/client#CustomerAutoFill": CustomerAutoFill_5c138208fc6a6657e86a40fe5d8ab8c0,
@@ -19,5 +20,6 @@ export const importMap = {
   "payload-invoicepdf/client#SendEmailButton": SendEmailButton_5c138208fc6a6657e86a40fe5d8ab8c0,
   "payload-invoicepdf/client#RelatedQuote": RelatedQuote_5c138208fc6a6657e86a40fe5d8ab8c0,
   "payload-invoicepdf/client#ConvertToInvoiceButton": ConvertToInvoiceButton_5c138208fc6a6657e86a40fe5d8ab8c0,
-  "payload-invoicepdf/client#RelatedInvoices": RelatedInvoices_5c138208fc6a6657e86a40fe5d8ab8c0
+  "payload-invoicepdf/client#RelatedInvoices": RelatedInvoices_5c138208fc6a6657e86a40fe5d8ab8c0,
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
