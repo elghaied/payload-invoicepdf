@@ -209,7 +209,7 @@ export const createInvoicesCollection = (
       type: 'relationship',
       relationTo: pluginConfig.mediaCollection,
       hasMany: true,
-      admin: { readOnly: true, position: 'sidebar' },
+      admin: { hidden: true },
     },
   ],
 })

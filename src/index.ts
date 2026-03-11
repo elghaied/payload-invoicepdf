@@ -38,10 +38,34 @@ export const invoicePdf =
     config.endpoints.push(createGeneratePdfEndpoint(pluginConfig))
     config.endpoints.push(createConvertToInvoiceEndpoint(pluginConfig))
 
-    // Admin components — inject UI fields into the collections for sidebar buttons
+    // Admin components — tabbed UI + sidebar buttons
     const invoiceCol = config.collections.find((c) => c.slug === 'invoices')
     if (invoiceCol) {
-      invoiceCol.fields.push(
+      const existingFields = [...invoiceCol.fields]
+      invoiceCol.fields = [
+        {
+          type: 'tabs',
+          tabs: [
+            {
+              label: 'Invoice',
+              fields: existingFields,
+            },
+            {
+              label: 'PDF History',
+              fields: [
+                {
+                  name: 'pdfHistoryView',
+                  type: 'ui',
+                  admin: {
+                    components: {
+                      Field: 'payload-invoicepdf/client#PdfHistory',
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
         {
           name: 'downloadPdf',
           type: 'ui',
@@ -62,22 +86,36 @@ export const invoicePdf =
             },
           },
         },
-        {
-          name: 'pdfHistory',
-          type: 'ui',
-          admin: {
-            position: 'sidebar',
-            components: {
-              Field: 'payload-invoicepdf/client#PdfHistory',
-            },
-          },
-        },
-      )
+      ]
     }
 
     const quotesCol = config.collections.find((c) => c.slug === 'quotes')
     if (quotesCol) {
-      quotesCol.fields.push(
+      const existingFields = [...quotesCol.fields]
+      quotesCol.fields = [
+        {
+          type: 'tabs',
+          tabs: [
+            {
+              label: 'Quote',
+              fields: existingFields,
+            },
+            {
+              label: 'PDF History',
+              fields: [
+                {
+                  name: 'pdfHistoryView',
+                  type: 'ui',
+                  admin: {
+                    components: {
+                      Field: 'payload-invoicepdf/client#PdfHistory',
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
         {
           name: 'downloadPdf',
           type: 'ui',
@@ -95,16 +133,6 @@ export const invoicePdf =
             position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#GeneratePdfButton',
-            },
-          },
-        },
-        {
-          name: 'pdfHistory',
-          type: 'ui',
-          admin: {
-            position: 'sidebar',
-            components: {
-              Field: 'payload-invoicepdf/client#PdfHistory',
             },
           },
         },
@@ -118,7 +146,7 @@ export const invoicePdf =
             },
           },
         },
-      )
+      ]
     }
 
     return config

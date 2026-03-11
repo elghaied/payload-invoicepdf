@@ -1,59 +1,66 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { useDocumentInfo, useFormFields, useConfig } from '@payloadcms/ui'
+import { useDocumentInfo, useConfig } from '@payloadcms/ui'
 
 interface MediaDoc {
   id: string
   filename: string
   url: string
+  filesize: number
+  createdAt: string
+  mimeType: string
+}
+
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+const formatSize = (bytes: number) => {
+  if (!bytes) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 export const PdfHistory: React.FC = () => {
   const { id, collectionSlug } = useDocumentInfo()
   const { config } = useConfig()
-  const generatedPdfsField = useFormFields(([fields]) => fields['generatedPdfs'])
   const [mediaDocs, setMediaDocs] = useState<MediaDoc[]>([])
-  const [loading, setLoading] = useState(false)
-
-  const rawValue = generatedPdfsField?.value
-
-  // Normalize IDs from relationship value (can be objects or strings)
-  const pdfIds: string[] = Array.isArray(rawValue)
-    ? rawValue.map((entry: any) => (typeof entry === 'object' ? entry.id ?? entry.value : entry)).filter(Boolean)
-    : []
+  const [loading, setLoading] = useState(true)
 
   const serverUrl = config.serverURL || ''
+  const apiRoute = config.routes.api
+
+  const fetchPdfs = useCallback(async () => {
+    if (!id || !collectionSlug) return
+    setLoading(true)
+    try {
+      const res = await fetch(`${apiRoute}/${collectionSlug}/${id}?depth=1`, {
+        credentials: 'include',
+      })
+      if (res.ok) {
+        const doc = await res.json()
+        const pdfs = Array.isArray(doc.generatedPdfs) ? doc.generatedPdfs : []
+        setMediaDocs(pdfs.filter((p: any) => typeof p === 'object' && p.id))
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false)
+    }
+  }, [id, collectionSlug, apiRoute])
 
   useEffect(() => {
-    if (pdfIds.length === 0) {
-      setMediaDocs([])
-      return
-    }
-
-    let cancelled = false
-    const fetchMedia = async () => {
-      setLoading(true)
-      try {
-        const qs = pdfIds.map((pid) => `where[id][in]=${pid}`).join('&')
-        const res = await fetch(
-          `${config.routes.api}/media?${qs}&limit=${pdfIds.length}&sort=-createdAt`,
-          { credentials: 'include' },
-        )
-        if (!cancelled && res.ok) {
-          const data = await res.json()
-          setMediaDocs(data.docs ?? [])
-        }
-      } catch {
-        // silently fail — user can retry
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    }
-
-    fetchMedia()
-    return () => { cancelled = true }
-  }, [pdfIds.join(','), config.routes.api])
+    fetchPdfs()
+  }, [fetchPdfs])
 
   const handleDelete = useCallback(
     async (mediaId: string) => {
@@ -61,15 +68,16 @@ export const PdfHistory: React.FC = () => {
       if (!window.confirm('Delete this PDF?')) return
 
       try {
-        // Delete the media doc
-        await fetch(`${config.routes.api}/media/${mediaId}`, {
+        await fetch(`${apiRoute}/media/${mediaId}`, {
           method: 'DELETE',
           credentials: 'include',
         })
 
-        // Remove from the relationship array
-        const updatedIds = pdfIds.filter((pid) => pid !== mediaId)
-        await fetch(`${config.routes.api}/${collectionSlug}/${id}`, {
+        const updatedIds = mediaDocs
+          .filter((doc) => doc.id !== mediaId)
+          .map((doc) => doc.id)
+
+        await fetch(`${apiRoute}/${collectionSlug}/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -81,68 +89,158 @@ export const PdfHistory: React.FC = () => {
         // silently fail
       }
     },
-    [id, collectionSlug, pdfIds, config.routes.api],
+    [id, collectionSlug, mediaDocs, apiRoute],
   )
 
   if (!id) return null
 
   return (
-    <div style={{ marginBottom: 16 }}>
-      <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Generated PDFs</p>
-      {loading && <p style={{ fontSize: 12, color: '#888' }}>Loading...</p>}
-      {!loading && mediaDocs.length === 0 && (
-        <p style={{ fontSize: 12, color: '#888' }}>No PDFs generated yet.</p>
+    <div style={{ maxWidth: 800 }}>
+      {loading && (
+        <p style={{ color: 'var(--theme-elevation-500)', fontSize: 14, padding: '20px 0' }}>
+          Loading...
+        </p>
       )}
-      {mediaDocs.map((doc) => {
-        const fullUrl = doc.url?.startsWith('http') ? doc.url : `${serverUrl}${doc.url}`
-        return (
-          <div
-            key={doc.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '4px 0',
-              borderBottom: '1px solid #eee',
-              gap: 8,
-            }}
-          >
-            <a
-              href={fullUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontSize: 12,
-                color: '#0070f3',
-                textDecoration: 'none',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                flex: 1,
-              }}
-              title={fullUrl}
-            >
-              {doc.filename}
-            </a>
-            <button
-              type="button"
-              onClick={() => handleDelete(doc.id)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#e11d48',
-                cursor: 'pointer',
-                fontSize: 12,
-                padding: '2px 6px',
-                flexShrink: 0,
-              }}
-              title="Delete PDF"
-            >
-              x
-            </button>
-          </div>
-        )
-      })}
+
+      {!loading && mediaDocs.length === 0 && (
+        <div
+          style={{
+            padding: 32,
+            textAlign: 'center',
+            border: '1px dashed var(--theme-elevation-150)',
+            borderRadius: 8,
+          }}
+        >
+          <p style={{ color: 'var(--theme-elevation-500)', fontSize: 14, margin: 0 }}>
+            No PDFs generated yet. Use the &quot;Generate PDF&quot; button in the sidebar.
+          </p>
+        </div>
+      )}
+
+      {!loading && mediaDocs.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {mediaDocs.map((doc, index) => {
+            const fullUrl = doc.url?.startsWith('http') ? doc.url : `${serverUrl}${doc.url}`
+            return (
+              <div
+                key={doc.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  padding: 16,
+                  border: '1px solid var(--theme-elevation-150)',
+                  borderRadius: 8,
+                  background: 'var(--theme-elevation-50)',
+                }}
+              >
+                {/* File type indicator */}
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 6,
+                    background: 'var(--theme-elevation-100)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: 'var(--theme-elevation-600)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  PDF
+                </div>
+
+                {/* File info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: 'var(--theme-text)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                      title={doc.filename}
+                    >
+                      {doc.filename}
+                    </span>
+                    {index === 0 && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: 'var(--theme-success-500, #22c55e)',
+                          background: 'var(--theme-success-100, #dcfce7)',
+                          padding: '1px 6px',
+                          borderRadius: 4,
+                          flexShrink: 0,
+                        }}
+                      >
+                        Latest
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 12,
+                      marginTop: 4,
+                      fontSize: 12,
+                      color: 'var(--theme-elevation-500)',
+                    }}
+                  >
+                    <span>{formatDate(doc.createdAt)}</span>
+                    {doc.filesize > 0 && <span>{formatSize(doc.filesize)}</span>}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                  <a
+                    href={fullUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 13,
+                      borderRadius: 4,
+                      border: '1px solid var(--theme-elevation-150)',
+                      background: 'var(--theme-elevation-0)',
+                      color: 'var(--theme-text)',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Download
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(doc.id)}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 13,
+                      borderRadius: 4,
+                      border: '1px solid var(--theme-error-500, #e11d48)',
+                      background: 'transparent',
+                      color: 'var(--theme-error-500, #e11d48)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

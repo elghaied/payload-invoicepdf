@@ -1,46 +1,40 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useDocumentInfo, useFormFields, useConfig } from '@payloadcms/ui'
+import { useDocumentInfo, useConfig } from '@payloadcms/ui'
 
 export const DownloadPdfButton: React.FC = () => {
-  const { id } = useDocumentInfo()
+  const { id, collectionSlug } = useDocumentInfo()
   const { config } = useConfig()
-  const generatedPdfsField = useFormFields(([fields]) => fields['generatedPdfs'])
   const [latestUrl, setLatestUrl] = useState<string | null>(null)
-
-  const rawValue = generatedPdfsField?.value
-  const firstId = Array.isArray(rawValue) && rawValue.length > 0
-    ? (typeof rawValue[0] === 'object' ? rawValue[0].id ?? rawValue[0].value : rawValue[0])
-    : null
 
   const serverUrl = config.serverURL || ''
 
   useEffect(() => {
-    if (!firstId) {
-      setLatestUrl(null)
-      return
-    }
+    if (!id || !collectionSlug) return
 
     let cancelled = false
-    const fetchUrl = async () => {
+    const fetchLatest = async () => {
       try {
-        const res = await fetch(`${config.routes.api}/media/${firstId}`, {
+        const res = await fetch(`${config.routes.api}/${collectionSlug}/${id}?depth=1`, {
           credentials: 'include',
         })
         if (!cancelled && res.ok) {
-          const data = await res.json()
-          const url = data.url?.startsWith('http') ? data.url : `${serverUrl}${data.url}`
-          setLatestUrl(url)
+          const doc = await res.json()
+          const firstPdf = Array.isArray(doc.generatedPdfs) && doc.generatedPdfs[0]
+          if (firstPdf && typeof firstPdf === 'object' && firstPdf.url) {
+            const url = firstPdf.url.startsWith('http') ? firstPdf.url : `${serverUrl}${firstPdf.url}`
+            setLatestUrl(url)
+          }
         }
       } catch {
         // silently fail
       }
     }
 
-    fetchUrl()
+    fetchLatest()
     return () => { cancelled = true }
-  }, [firstId, config.routes.api, serverUrl])
+  }, [id, collectionSlug, config.routes.api, serverUrl])
 
   if (!latestUrl || !id) return null
 

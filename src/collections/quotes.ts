@@ -204,7 +204,7 @@ export const createQuotesCollection = (
       type: 'relationship',
       relationTo: pluginConfig.mediaCollection,
       hasMany: true,
-      admin: { readOnly: true, position: 'sidebar' },
+      admin: { hidden: true },
     },
   ],
 })
