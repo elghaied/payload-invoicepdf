@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import type { SanitizedInvoicePdfConfig } from '../types.js'
+import { createAutoFillFromProductHook } from '../hooks/auto-fill-from-product.js'
 import { createAutoNumberHook } from '../hooks/auto-number.js'
 import { createCalculateTotalsHook } from '../hooks/calculate-totals.js'
 import { createCalculateDueDateHook } from '../hooks/calculate-due-date.js'
@@ -16,6 +17,7 @@ export const createInvoicesCollection = (
   },
   hooks: {
     beforeChange: [
+      createAutoFillFromProductHook(pluginConfig),
       createAutoNumberHook({
         fieldName: 'invoiceNumber',
         prefix: pluginConfig.invoiceNumberPrefix,
@@ -97,11 +99,39 @@ export const createInvoicesCollection = (
           name: 'product',
           type: 'relationship',
           relationTo: pluginConfig.productCollection,
-          admin: { description: 'Optional — select a product to auto-fill fields' },
+          admin: { description: 'Select a product to auto-fill description and price' },
         },
-        { name: 'description', type: 'text', required: true },
+        {
+          type: 'ui',
+          name: 'autoFillFromProduct',
+          label: ' ',
+          admin: {
+            components: {
+              Field: {
+                path: 'payload-invoicepdf/client',
+                exportName: 'ProductAutoFill',
+                clientProps: {
+                  productFieldMapping: pluginConfig.productFieldMapping,
+                  productCollection: pluginConfig.productCollection,
+                },
+              },
+            },
+          },
+        },
+        {
+          name: 'description',
+          type: 'text',
+          required: true,
+          admin: { description: 'Auto-filled when a product is selected. Changing the product overrides this value.' },
+        },
         { name: 'quantity', type: 'number', required: true, defaultValue: 1, min: 0 },
-        { name: 'unitPrice', type: 'number', required: true, min: 0 },
+        {
+          name: 'unitPrice',
+          type: 'number',
+          required: true,
+          min: 0,
+          admin: { description: 'Auto-filled when a product is selected. Changing the product overrides this value.' },
+        },
         {
           name: 'taxRate',
           type: 'number',
