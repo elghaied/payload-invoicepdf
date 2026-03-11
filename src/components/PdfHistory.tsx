@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+import './PdfHistory.css'
 
 interface MediaDoc {
   id: string
@@ -95,143 +96,53 @@ export const PdfHistory: React.FC = () => {
   if (!id) return null
 
   return (
-    <div style={{ maxWidth: 800 }}>
+    <div className="pdf-history">
       {loading && (
-        <p style={{ color: 'var(--theme-elevation-500)', fontSize: 14, padding: '20px 0' }}>
-          Loading...
-        </p>
+        <p className="pdf-history__loading">Loading...</p>
       )}
 
       {!loading && mediaDocs.length === 0 && (
-        <div
-          style={{
-            padding: 32,
-            textAlign: 'center',
-            border: '1px dashed var(--theme-elevation-150)',
-            borderRadius: 8,
-          }}
-        >
-          <p style={{ color: 'var(--theme-elevation-500)', fontSize: 14, margin: 0 }}>
+        <div className="pdf-history__empty">
+          <p className="pdf-history__empty-text">
             No PDFs generated yet. Use the &quot;Generate PDF&quot; button in the sidebar.
           </p>
         </div>
       )}
 
       {!loading && mediaDocs.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="pdf-history__list">
           {mediaDocs.map((doc, index) => {
             const fullUrl = doc.url?.startsWith('http') ? doc.url : `${serverUrl}${doc.url}`
             return (
-              <div
-                key={doc.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  padding: 16,
-                  border: '1px solid var(--theme-elevation-150)',
-                  borderRadius: 8,
-                  background: 'var(--theme-elevation-50)',
-                }}
-              >
-                {/* File type indicator */}
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 6,
-                    background: 'var(--theme-elevation-100)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: 'var(--theme-elevation-600)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  PDF
-                </div>
-
-                {/* File info */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: 'var(--theme-text)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                      title={doc.filename}
-                    >
+              <div key={doc.id} className="pdf-history__item">
+                <div className="pdf-history__icon">PDF</div>
+                <div className="pdf-history__info">
+                  <div className="pdf-history__name-row">
+                    <span className="pdf-history__filename" title={doc.filename}>
                       {doc.filename}
                     </span>
                     {index === 0 && (
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: 'var(--theme-success-500, #22c55e)',
-                          background: 'var(--theme-success-100, #dcfce7)',
-                          padding: '1px 6px',
-                          borderRadius: 4,
-                          flexShrink: 0,
-                        }}
-                      >
-                        Latest
-                      </span>
+                      <span className="pdf-history__badge">Latest</span>
                     )}
                   </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: 12,
-                      marginTop: 4,
-                      fontSize: 12,
-                      color: 'var(--theme-elevation-500)',
-                    }}
-                  >
+                  <div className="pdf-history__meta">
                     <span>{formatDate(doc.createdAt)}</span>
                     {doc.filesize > 0 && <span>{formatSize(doc.filesize)}</span>}
                   </div>
                 </div>
-
-                {/* Actions */}
-                <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                <div className="pdf-history__actions">
                   <a
                     href={fullUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: 13,
-                      borderRadius: 4,
-                      border: '1px solid var(--theme-elevation-150)',
-                      background: 'var(--theme-elevation-0)',
-                      color: 'var(--theme-text)',
-                      textDecoration: 'none',
-                      cursor: 'pointer',
-                    }}
+                    className="pdf-history__download"
                   >
                     Download
                   </a>
                   <button
                     type="button"
                     onClick={() => handleDelete(doc.id)}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: 13,
-                      borderRadius: 4,
-                      border: '1px solid var(--theme-error-500, #e11d48)',
-                      background: 'transparent',
-                      color: 'var(--theme-error-500, #e11d48)',
-                      cursor: 'pointer',
-                    }}
+                    className="pdf-history__delete"
                   >
                     Delete
                   </button>

@@ -2,6 +2,7 @@
 
 import React, { useCallback, useState } from 'react'
 import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+import './SidebarButton.css'
 
 export const GeneratePdfButton: React.FC = () => {
   const { id, collectionSlug } = useDocumentInfo()
@@ -49,31 +50,20 @@ export const GeneratePdfButton: React.FC = () => {
   if (!id) return null
 
   return (
-    <div style={{ marginBottom: 16 }}>
-      <p style={{ fontSize: 12, marginBottom: 8, color: '#888', lineHeight: 1.4 }}>
+    <div className="sidebar-button">
+      <p className="sidebar-button__hint">
         Save your changes before generating — unsaved edits won't appear in the PDF.
       </p>
       <button
         type="button"
         onClick={handleGenerate}
         disabled={loading}
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '8px 16px',
-          backgroundColor: loading ? '#999' : '#16a34a',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 4,
-          cursor: loading ? 'not-allowed' : 'pointer',
-          fontSize: 14,
-          fontWeight: 500,
-        }}
+        className="sidebar-button__btn sidebar-button__btn--generate"
       >
         {loading ? 'Generating...' : 'Generate PDF'}
       </button>
       {message && (
-        <p style={{ fontSize: 12, marginTop: 4, color: '#666' }}>{message}</p>
+        <p className="sidebar-button__message">{message}</p>
       )}
     </div>
   )

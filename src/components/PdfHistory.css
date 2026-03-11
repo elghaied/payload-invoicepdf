@@ -1,0 +1,127 @@
+.pdf-history {
+  max-width: 800px;
+}
+
+.pdf-history__loading {
+  color: var(--theme-elevation-500);
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+.pdf-history__empty {
+  padding: 32px;
+  text-align: center;
+  border: 1px dashed var(--theme-elevation-150);
+  border-radius: 8px;
+}
+
+.pdf-history__empty-text {
+  color: var(--theme-elevation-500);
+  font-size: 14px;
+  margin: 0;
+}
+
+.pdf-history__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pdf-history__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 8px;
+  background: var(--theme-elevation-50);
+}
+
+.pdf-history__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  background: var(--theme-elevation-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--theme-elevation-600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pdf-history__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pdf-history__name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdf-history__filename {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--theme-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdf-history__badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--theme-success-500, #22c55e);
+  background: var(--theme-success-100, #dcfce7);
+  padding: 1px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.pdf-history__meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--theme-elevation-500);
+}
+
+.pdf-history__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pdf-history__download {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid var(--theme-elevation-150);
+  background: var(--theme-elevation-0);
+  color: var(--theme-text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pdf-history__download:hover {
+  background: var(--theme-elevation-100);
+}
+
+.pdf-history__delete {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid var(--theme-error-500, #e11d48);
+  background: transparent;
+  color: var(--theme-error-500, #e11d48);
+  cursor: pointer;
+}
+
+.pdf-history__delete:hover {
+  background: var(--theme-error-100, #ffe4e6);
+}

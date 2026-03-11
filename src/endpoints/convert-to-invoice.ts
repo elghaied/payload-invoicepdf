@@ -48,15 +48,22 @@ export const createConvertToInvoiceEndpoint = (
             taxRate: item.taxRate,
           })),
           notes: quoteData.notes,
+          sourceQuote: quoteId,
         },
         req,
       })
 
-      // Set quote status to accepted
+      // Update quote: set status to accepted and append to relatedInvoices
+      const existingRelated = Array.isArray(quoteData.relatedInvoices)
+        ? quoteData.relatedInvoices.map((r: any) => (typeof r === 'object' ? r.id : r))
+        : []
       await req.payload.update({
         collection: 'quotes' as any,
         id: quoteId,
-        data: { status: 'accepted' },
+        data: {
+          status: 'accepted',
+          relatedInvoices: [...existingRelated, invoice.id],
+        },
         req,
       })
 

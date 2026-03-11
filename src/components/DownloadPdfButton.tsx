@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+import './SidebarButton.css'
 
 export const DownloadPdfButton: React.FC = () => {
   const { id, collectionSlug } = useDocumentInfo()
@@ -39,24 +40,12 @@ export const DownloadPdfButton: React.FC = () => {
   if (!latestUrl || !id) return null
 
   return (
-    <div style={{ marginBottom: 16 }}>
+    <div className="sidebar-button">
       <a
         href={latestUrl}
         target="_blank"
         rel="noopener noreferrer"
-        style={{
-          display: 'inline-block',
-          padding: '8px 16px',
-          backgroundColor: '#0070f3',
-          color: '#fff',
-          borderRadius: 4,
-          textDecoration: 'none',
-          fontSize: 14,
-          fontWeight: 500,
-          textAlign: 'center',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
+        className="sidebar-button__link"
       >
         Download Latest PDF
       </a>

@@ -205,6 +205,12 @@ export const createInvoicesCollection = (
     { name: 'taxTotal', type: 'number', admin: { readOnly: true } },
     { name: 'total', type: 'number', admin: { readOnly: true } },
     {
+      name: 'sourceQuote',
+      type: 'relationship',
+      relationTo: 'quotes',
+      admin: { hidden: true, position: 'sidebar' },
+    },
+    {
       name: 'generatedPdfs',
       type: 'relationship',
       relationTo: pluginConfig.mediaCollection,

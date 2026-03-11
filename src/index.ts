@@ -90,6 +90,16 @@ export const invoicePdf =
             },
           },
         },
+        {
+          name: 'relatedQuote',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#RelatedQuote',
+            },
+          },
+        },
       ]
     }
 
@@ -149,6 +159,16 @@ export const invoicePdf =
             position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#ConvertToInvoiceButton',
+            },
+          },
+        },
+        {
+          name: 'relatedInvoicesView',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#RelatedInvoices',
             },
           },
         },

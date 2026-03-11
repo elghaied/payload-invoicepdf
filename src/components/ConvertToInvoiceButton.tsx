@@ -2,6 +2,7 @@
 
 import React, { useCallback, useState } from 'react'
 import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+import './SidebarButton.css'
 
 export const ConvertToInvoiceButton: React.FC = () => {
   const { id, collectionSlug } = useDocumentInfo()
@@ -45,28 +46,17 @@ export const ConvertToInvoiceButton: React.FC = () => {
   if (!id || collectionSlug !== 'quotes') return null
 
   return (
-    <div style={{ marginBottom: 16 }}>
+    <div className="sidebar-button">
       <button
         type="button"
         onClick={handleConvert}
         disabled={loading}
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '8px 16px',
-          backgroundColor: loading ? '#999' : '#7c3aed',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 4,
-          cursor: loading ? 'not-allowed' : 'pointer',
-          fontSize: 14,
-          fontWeight: 500,
-        }}
+        className="sidebar-button__btn sidebar-button__btn--convert"
       >
         {loading ? 'Converting...' : 'Convert to Invoice'}
       </button>
       {message && (
-        <p style={{ fontSize: 12, marginTop: 4, color: '#666' }}>{message}</p>
+        <p className="sidebar-button__message">{message}</p>
       )}
     </div>
   )

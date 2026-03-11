@@ -200,6 +200,13 @@ export const createQuotesCollection = (
     { name: 'taxTotal', type: 'number', admin: { readOnly: true } },
     { name: 'total', type: 'number', admin: { readOnly: true } },
     {
+      name: 'relatedInvoices',
+      type: 'relationship',
+      relationTo: 'invoices',
+      hasMany: true,
+      admin: { hidden: true, position: 'sidebar' },
+    },
+    {
       name: 'generatedPdfs',
       type: 'relationship',
       relationTo: pluginConfig.mediaCollection,
