@@ -181,9 +181,6 @@ export interface Customer {
  */
 export interface Invoice {
   id: string;
-  invoiceNumber?: string | null;
-  status?: ('draft' | 'sent' | 'paid' | 'overdue' | 'cancelled') | null;
-  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
   issueDate?: string | null;
   dueDate?: string | null;
   client: {
@@ -226,8 +223,41 @@ export interface Invoice {
   taxTotal?: number | null;
   total?: number | null;
   generatedPdfs?: (string | Media)[] | null;
+  invoiceNumber?: string | null;
+  status?: ('draft' | 'sent' | 'paid' | 'overdue' | 'cancelled') | null;
+  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
+  lastSentAt?: string | null;
+  sendHistory?:
+    | {
+        sentAt?: string | null;
+        to?: string | null;
+        templateUsed?: string | null;
+        subject?: string | null;
+        attachedPdf?: (string | null) | Media;
+        sentBy?: (string | null) | User;
+        id?: string | null;
+      }[]
+    | null;
+  sourceQuote?: (string | null) | Quote;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: string;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -235,9 +265,6 @@ export interface Invoice {
  */
 export interface Quote {
   id: string;
-  quoteNumber?: string | null;
-  status?: ('draft' | 'sent' | 'accepted' | 'rejected' | 'expired') | null;
-  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
   issueDate?: string | null;
   validUntil?: string | null;
   client: {
@@ -279,26 +306,29 @@ export interface Quote {
   subtotal?: number | null;
   taxTotal?: number | null;
   total?: number | null;
+  acceptToken?: string | null;
+  rejectToken?: string | null;
+  tokenExpiresAt?: string | null;
+  rejectionReason?: string | null;
   generatedPdfs?: (string | Media)[] | null;
+  quoteNumber?: string | null;
+  status?: ('draft' | 'sent' | 'accepted' | 'rejected' | 'expired') | null;
+  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
+  lastSentAt?: string | null;
+  sendHistory?:
+    | {
+        sentAt?: string | null;
+        to?: string | null;
+        templateUsed?: string | null;
+        subject?: string | null;
+        attachedPdf?: (string | null) | Media;
+        sentBy?: (string | null) | User;
+        id?: string | null;
+      }[]
+    | null;
+  relatedInvoices?: (string | Invoice)[] | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: string;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -427,9 +457,6 @@ export interface CustomersSelect<T extends boolean = true> {
  * via the `definition` "invoices_select".
  */
 export interface InvoicesSelect<T extends boolean = true> {
-  invoiceNumber?: T;
-  status?: T;
-  template?: T;
   issueDate?: T;
   dueDate?: T;
   client?:
@@ -464,6 +491,22 @@ export interface InvoicesSelect<T extends boolean = true> {
   taxTotal?: T;
   total?: T;
   generatedPdfs?: T;
+  invoiceNumber?: T;
+  status?: T;
+  template?: T;
+  lastSentAt?: T;
+  sendHistory?:
+    | T
+    | {
+        sentAt?: T;
+        to?: T;
+        templateUsed?: T;
+        subject?: T;
+        attachedPdf?: T;
+        sentBy?: T;
+        id?: T;
+      };
+  sourceQuote?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -472,9 +515,6 @@ export interface InvoicesSelect<T extends boolean = true> {
  * via the `definition` "quotes_select".
  */
 export interface QuotesSelect<T extends boolean = true> {
-  quoteNumber?: T;
-  status?: T;
-  template?: T;
   issueDate?: T;
   validUntil?: T;
   client?:
@@ -508,7 +548,27 @@ export interface QuotesSelect<T extends boolean = true> {
   subtotal?: T;
   taxTotal?: T;
   total?: T;
+  acceptToken?: T;
+  rejectToken?: T;
+  tokenExpiresAt?: T;
+  rejectionReason?: T;
   generatedPdfs?: T;
+  quoteNumber?: T;
+  status?: T;
+  template?: T;
+  lastSentAt?: T;
+  sendHistory?:
+    | T
+    | {
+        sentAt?: T;
+        to?: T;
+        templateUsed?: T;
+        subject?: T;
+        attachedPdf?: T;
+        sentBy?: T;
+        id?: T;
+      };
+  relatedInvoices?: T;
   updatedAt?: T;
   createdAt?: T;
 }
