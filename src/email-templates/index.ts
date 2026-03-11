@@ -7,6 +7,7 @@ export const attachedPdfEmailTemplate: EmailTemplate = {
   label: 'Attached PDF',
   description:
     'Sends the document as a PDF file attached to the email. Works out of the box — no frontend setup required.',
+  kind: 'attachment',
   component: AttachedPdfEmail,
   forTypes: ['invoice', 'quote'],
 }
@@ -16,6 +17,7 @@ export const liveDocumentLinkEmailTemplate: EmailTemplate = {
   label: 'Live Document Link',
   description:
     'Sends a link where the client can view the document online and accept or reject it. Requires frontend setup.',
+  kind: 'link',
   component: LiveDocumentLinkEmail,
   forTypes: ['quote'],
 }

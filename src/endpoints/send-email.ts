@@ -69,9 +69,9 @@ export const createSendEmailEndpoint = (
         req,
       })
 
-      // For live-document-link, construct viewUrl and ensure tokens exist
+      // For link templates, construct viewUrl and ensure tokens exist
       let viewUrl: string | undefined
-      if (templateName === 'live-document-link' && type === 'quote') {
+      if (emailTemplate.kind === 'link' && type === 'quote') {
         const baseUrl =
           process.env.NEXT_PUBLIC_SERVER_URL || process.env.NEXT_PUBLIC_SITE_URL
         if (!baseUrl) {
@@ -125,8 +125,8 @@ export const createSendEmailEndpoint = (
         html,
       }
 
-      // For attached-pdf template, attach the PDF file
-      if (templateName === 'attached-pdf' && attachedPdfId) {
+      // Attach PDF file if one was selected
+      if (attachedPdfId) {
         const mediaDoc = await req.payload.findByID({
           collection: pluginConfig.mediaCollection as any,
           id: attachedPdfId,

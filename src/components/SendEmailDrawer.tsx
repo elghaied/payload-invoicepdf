@@ -20,6 +20,7 @@ interface EmailTemplateOption {
   name: string
   label: string
   description: string
+  kind: 'attachment' | 'link'
 }
 
 interface Props {
@@ -41,7 +42,8 @@ export const SendEmailDrawer: React.FC<Props> = ({
 
   const [to, setTo] = useState('')
   const [subject, setSubject] = useState('')
-  const [templateName, setTemplateName] = useState('attached-pdf')
+  const [selectedKind, setSelectedKind] = useState<'attachment' | 'link'>('attachment')
+  const [templateName, setTemplateName] = useState('')
   const [templates, setTemplates] = useState<EmailTemplateOption[]>([])
   const [pdfOptions, setPdfOptions] = useState<PdfOption[]>([])
   const [selectedPdfId, setSelectedPdfId] = useState('')
@@ -108,7 +110,13 @@ export const SendEmailDrawer: React.FC<Props> = ({
         const data = await res.json()
         if (data.templates) {
           setTemplates(data.templates)
-          if (data.templates.length > 0 && !data.templates.find((t: any) => t.name === templateName)) {
+          // Auto-select first template of the current kind
+          const ofKind = data.templates.filter((t: EmailTemplateOption) => t.kind === selectedKind)
+          if (ofKind.length > 0 && !ofKind.find((t: EmailTemplateOption) => t.name === templateName)) {
+            setTemplateName(ofKind[0].name)
+          } else if (ofKind.length === 0 && data.templates.length > 0) {
+            // Fall back to whatever kind is available
+            setSelectedKind(data.templates[0].kind)
             setTemplateName(data.templates[0].name)
           }
         }
@@ -121,11 +129,21 @@ export const SendEmailDrawer: React.FC<Props> = ({
     }
     fetchTemplates()
     return () => { cancelled = true }
-  }, [apiRoute, type, templateName])
+  }, [apiRoute, type, selectedKind, templateName])
 
+  const availableKinds = [...new Set(templates.map((t) => t.kind))]
+  const filteredTemplates = templates.filter((t) => t.kind === selectedKind)
   const selectedTemplate = templates.find((t) => t.name === templateName)
-  const isLiveLink = templateName === 'live-document-link'
-  const sendDisabled = sending || !to || !subject || (isLiveLink && serverUrlMissing)
+  const isLink = selectedKind === 'link'
+  const sendDisabled = sending || !to || !subject || !templateName || (isLink && serverUrlMissing)
+
+  const handleKindChange = (kind: 'attachment' | 'link') => {
+    setSelectedKind(kind)
+    const firstOfKind = templates.find((t) => t.kind === kind)
+    if (firstOfKind) {
+      setTemplateName(firstOfKind.name)
+    }
+  }
 
   const handleSend = useCallback(async () => {
     setSending(true)
@@ -207,6 +225,36 @@ export const SendEmailDrawer: React.FC<Props> = ({
           />
         </div>
 
+        {/* Delivery Type */}
+        <div className="send-email-drawer__field">
+          <label className="send-email-drawer__label">Delivery Type</label>
+          <div className="send-email-drawer__kind-toggle">
+            {availableKinds.includes('attachment') && (
+              <button
+                type="button"
+                className={`send-email-drawer__kind-btn${selectedKind === 'attachment' ? ' send-email-drawer__kind-btn--active' : ''}`}
+                onClick={() => handleKindChange('attachment')}
+              >
+                Attachment
+              </button>
+            )}
+            {availableKinds.includes('link') && (
+              <button
+                type="button"
+                className={`send-email-drawer__kind-btn${selectedKind === 'link' ? ' send-email-drawer__kind-btn--active' : ''}`}
+                onClick={() => handleKindChange('link')}
+              >
+                Link
+              </button>
+            )}
+          </div>
+          {isLink && serverUrlMissing && (
+            <p className="send-email-drawer__warning">
+              NEXT_PUBLIC_SERVER_URL or NEXT_PUBLIC_SITE_URL must be set for link templates.
+            </p>
+          )}
+        </div>
+
         {/* Template */}
         <div className="send-email-drawer__field">
           <label className="send-email-drawer__label">Email Template</label>
@@ -215,7 +263,7 @@ export const SendEmailDrawer: React.FC<Props> = ({
             value={templateName}
             onChange={(e) => setTemplateName(e.target.value)}
           >
-            {templates.map((t) => (
+            {filteredTemplates.map((t) => (
               <option key={t.name} value={t.name}>
                 {t.label}
               </option>
@@ -226,22 +274,20 @@ export const SendEmailDrawer: React.FC<Props> = ({
               {selectedTemplate.description}
             </p>
           )}
-          {isLiveLink && serverUrlMissing && (
-            <p className="send-email-drawer__warning">
-              NEXT_PUBLIC_SERVER_URL or NEXT_PUBLIC_SITE_URL must be set to use this template.
-            </p>
-          )}
         </div>
 
         {/* Attached PDF */}
-        {!isLiveLink && pdfOptions.length > 0 && (
+        {pdfOptions.length > 0 && (
           <div className="send-email-drawer__field">
-            <label className="send-email-drawer__label">Attached PDF</label>
+            <label className="send-email-drawer__label">
+              {isLink ? 'Attach PDF (optional)' : 'Attached PDF'}
+            </label>
             <select
               className="send-email-drawer__select"
               value={selectedPdfId}
               onChange={(e) => setSelectedPdfId(e.target.value)}
             >
+              {isLink && <option value="">None</option>}
               {pdfOptions.map((pdf, index) => (
                 <option key={pdf.id} value={pdf.id}>
                   {pdf.filename}{index === 0 ? ' (Latest)' : ''} — {formatDate(pdf.createdAt)}

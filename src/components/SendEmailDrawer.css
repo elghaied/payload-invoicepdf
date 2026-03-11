@@ -47,6 +47,39 @@
   color: var(--theme-elevation-800);
 }
 
+.send-email-drawer__kind-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.send-email-drawer__kind-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: var(--theme-input-bg);
+  color: var(--theme-elevation-600);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.send-email-drawer__kind-btn:not(:last-child) {
+  border-right: 1px solid var(--theme-elevation-200);
+}
+
+.send-email-drawer__kind-btn--active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.send-email-drawer__kind-btn:hover:not(.send-email-drawer__kind-btn--active) {
+  background: var(--theme-elevation-100);
+}
+
 .send-email-drawer__template-desc {
   font-size: 12px;
   color: var(--theme-elevation-500);

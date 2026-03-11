@@ -36,6 +36,7 @@ export const createEmailConfigEndpoint = (
         name: t.name,
         label: t.label,
         description: t.description,
+        kind: t.kind,
       }))
       response.serverUrlMissing =
         !process.env.NEXT_PUBLIC_SERVER_URL && !process.env.NEXT_PUBLIC_SITE_URL

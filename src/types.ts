@@ -161,6 +161,7 @@ export interface EmailTemplate {
   name: string
   label: string
   description: string
+  kind: 'attachment' | 'link'
   component: React.FC<EmailTemplateProps>
   forTypes?: ('invoice' | 'quote')[]
 }

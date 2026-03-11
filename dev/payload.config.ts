@@ -6,6 +6,7 @@ import { buildConfig } from 'payload'
 import { invoicePdf, builtInTemplates } from 'payload-invoicepdf'
 
 import { corporateTemplate } from './templates/corporate.js'
+import { corporateEmailTemplate } from './templates/corporate-email.js'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
@@ -118,6 +119,7 @@ const buildConfigWithMemoryDB = async () => {
           },
         },
         templates: [...builtInTemplates, corporateTemplate],
+        emailTemplates: [corporateEmailTemplate],
       }),
     ],
     secret: process.env.PAYLOAD_SECRET || 'test-secret_key',
