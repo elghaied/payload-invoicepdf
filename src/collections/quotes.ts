@@ -5,6 +5,8 @@ import { createAutoFillFromCustomerHook } from '../hooks/auto-fill-from-customer
 import { createAutoNumberHook } from '../hooks/auto-number.js'
 import { createCalculateTotalsHook } from '../hooks/calculate-totals.js'
 import { createGeneratePdfHook } from '../hooks/generate-pdf.js'
+import { createGenerateTokensHook } from '../hooks/generate-tokens.js'
+import { createSendHistoryFields } from '../fields/send-history.js'
 
 export const createQuotesCollection = (
   pluginConfig: SanitizedInvoicePdfConfig,
@@ -33,6 +35,7 @@ export const createQuotesCollection = (
         collectionSlug: 'quotes',
       }),
       createCalculateTotalsHook(pluginConfig),
+      createGenerateTokensHook(),
     ],
     afterChange: [createGeneratePdfHook(pluginConfig, 'quote')],
   },
@@ -199,6 +202,27 @@ export const createQuotesCollection = (
     { name: 'subtotal', type: 'number', admin: { readOnly: true } },
     { name: 'taxTotal', type: 'number', admin: { readOnly: true } },
     { name: 'total', type: 'number', admin: { readOnly: true } },
+    {
+      name: 'acceptToken',
+      type: 'text',
+      admin: { hidden: true, readOnly: true },
+    },
+    {
+      name: 'rejectToken',
+      type: 'text',
+      admin: { hidden: true, readOnly: true },
+    },
+    {
+      name: 'tokenExpiresAt',
+      type: 'date',
+      admin: { hidden: true, readOnly: true },
+    },
+    {
+      name: 'rejectionReason',
+      type: 'textarea',
+      admin: { readOnly: true },
+    },
+    ...createSendHistoryFields(pluginConfig.mediaCollection),
     {
       name: 'relatedInvoices',
       type: 'relationship',

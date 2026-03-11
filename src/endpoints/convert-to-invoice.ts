@@ -1,5 +1,6 @@
 import type { Endpoint } from 'payload'
 import type { SanitizedInvoicePdfConfig } from '../types.js'
+import { convertQuoteToInvoice } from '../utils/convert-quote-to-invoice.js'
 
 export const createConvertToInvoiceEndpoint = (
   _pluginConfig: SanitizedInvoicePdfConfig,
@@ -19,58 +20,11 @@ export const createConvertToInvoiceEndpoint = (
     }
 
     try {
-      const quote = await req.payload.findByID({
-        collection: 'quotes' as any,
-        id: quoteId,
-        depth: 0,
-        req,
-      })
-
-      if (!quote) {
-        return Response.json({ error: 'Quote not found' }, { status: 404 })
-      }
-
-      const quoteData = quote as any
-
-      // Create new invoice from quote data
-      const invoice = await req.payload.create({
-        collection: 'invoices' as any,
-        data: {
-          status: 'draft',
-          template: quoteData.template,
-          issueDate: new Date().toISOString(),
-          client: quoteData.client,
-          items: quoteData.items?.map((item: any) => ({
-            product: item.product,
-            description: item.description,
-            quantity: item.quantity,
-            unitPrice: item.unitPrice,
-            taxRate: item.taxRate,
-          })),
-          notes: quoteData.notes,
-          sourceQuote: quoteId,
-        },
-        req,
-      })
-
-      // Update quote: set status to accepted and append to relatedInvoices
-      const existingRelated = Array.isArray(quoteData.relatedInvoices)
-        ? quoteData.relatedInvoices.map((r: any) => (typeof r === 'object' ? r.id : r))
-        : []
-      await req.payload.update({
-        collection: 'quotes' as any,
-        id: quoteId,
-        data: {
-          status: 'accepted',
-          relatedInvoices: [...existingRelated, invoice.id],
-        },
-        req,
-      })
-
+      const result = await convertQuoteToInvoice(req, quoteId)
       return Response.json({
         success: true,
-        invoiceId: invoice.id,
-        message: `Invoice created from quote ${quoteData.quoteNumber}`,
+        invoiceId: result.invoiceId,
+        message: `Invoice created from quote ${result.quoteNumber}`,
       })
     } catch (error) {
       req.payload.logger.error({ msg: 'Convert to invoice failed', err: error as Error })

@@ -6,6 +6,7 @@ import { createAutoNumberHook } from '../hooks/auto-number.js'
 import { createCalculateTotalsHook } from '../hooks/calculate-totals.js'
 import { createCalculateDueDateHook } from '../hooks/calculate-due-date.js'
 import { createGeneratePdfHook } from '../hooks/generate-pdf.js'
+import { createSendHistoryFields } from '../fields/send-history.js'
 
 export const createInvoicesCollection = (
   pluginConfig: SanitizedInvoicePdfConfig,
@@ -204,6 +205,7 @@ export const createInvoicesCollection = (
     { name: 'subtotal', type: 'number', admin: { readOnly: true } },
     { name: 'taxTotal', type: 'number', admin: { readOnly: true } },
     { name: 'total', type: 'number', admin: { readOnly: true } },
+    ...createSendHistoryFields(pluginConfig.mediaCollection),
     {
       name: 'sourceQuote',
       type: 'relationship',

@@ -65,3 +65,11 @@
 .sidebar-button__link:hover {
   background-color: #0060df;
 }
+
+.sidebar-button__btn--send {
+  background-color: #2563eb;
+}
+
+.sidebar-button__btn--send:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}

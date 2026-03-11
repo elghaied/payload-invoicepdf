@@ -1,4 +1,5 @@
 import type { InvoicePdfConfig, SanitizedInvoicePdfConfig } from './types.js'
+import { builtInEmailTemplates } from './email-templates/index.js'
 
 export const DEFAULTS = {
   invoiceNumberPrefix: 'INV',
@@ -31,5 +32,11 @@ export const sanitizeConfig = (config: InvoicePdfConfig): SanitizedInvoicePdfCon
     customerFieldMapping: config.customerFieldMapping,
     customerFilterOptions: config.customerFilterOptions,
     inlineClientFields: config.inlineClientFields ?? true,
+    emailTemplates: (() => {
+      const consumerTemplates = config.emailTemplates ?? []
+      const consumerNames = new Set(consumerTemplates.map(t => t.name))
+      const filtered = builtInEmailTemplates.filter(t => !consumerNames.has(t.name))
+      return [...filtered, ...consumerTemplates]
+    })(),
   }
 }

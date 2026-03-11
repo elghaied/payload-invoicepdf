@@ -45,6 +45,8 @@ export interface InvoicePdfConfig {
   /** When true (default), customer selection fills editable inline fields.
    *  When false, inline client fields are removed — data is resolved from the customer record. */
   inlineClientFields?: boolean
+  /** Custom email templates from consumer, merged with built-in templates */
+  emailTemplates?: EmailTemplate[]
   /** Disable the plugin (keeps schema for migrations) */
   disabled?: boolean
 }
@@ -132,6 +134,44 @@ export interface SanitizedInvoicePdfConfig {
   }
   customerFilterOptions?: Record<string, any>
   inlineClientFields: boolean
+  emailTemplates: EmailTemplate[]
+}
+
+export interface EmailTemplateProps {
+  type: 'invoice' | 'quote'
+  documentNumber: string
+  viewUrl?: string
+  client: {
+    name: string
+    email?: string
+    address?: { street?: string; city?: string; postalCode?: string; country?: string }
+  }
+  company: {
+    name: string
+    logo?: string
+    email?: string
+    phone?: string
+    website?: string
+    address?: { street?: string; city?: string; postalCode?: string; country?: string }
+    legalMentions?: string
+  }
+}
+
+export interface EmailTemplate {
+  name: string
+  label: string
+  description: string
+  component: React.FC<EmailTemplateProps>
+  forTypes?: ('invoice' | 'quote')[]
+}
+
+export interface SendHistoryEntry {
+  sentAt: string
+  to: string
+  templateUsed: string
+  subject: string
+  attachedPdf?: string
+  sentBy: string
 }
 
 /** Plugin type alias for Payload */

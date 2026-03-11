@@ -6,6 +6,10 @@ import { createInvoicesCollection } from './collections/invoices.js'
 import { createQuotesCollection } from './collections/quotes.js'
 import { createGeneratePdfEndpoint } from './endpoints/generate-pdf.js'
 import { createConvertToInvoiceEndpoint } from './endpoints/convert-to-invoice.js'
+import { createSendEmailEndpoint } from './endpoints/send-email.js'
+import { createEmailConfigEndpoint } from './endpoints/email-config.js'
+import { createAcceptQuoteEndpoint } from './endpoints/accept-quote.js'
+import { createRejectQuoteEndpoint } from './endpoints/reject-quote.js'
 
 export const invoicePdf =
   (pluginOptions: InvoicePdfConfig) =>
@@ -37,6 +41,10 @@ export const invoicePdf =
     if (!config.endpoints) config.endpoints = []
     config.endpoints.push(createGeneratePdfEndpoint(pluginConfig))
     config.endpoints.push(createConvertToInvoiceEndpoint(pluginConfig))
+    config.endpoints.push(createSendEmailEndpoint(pluginConfig))
+    config.endpoints.push(createEmailConfigEndpoint(pluginConfig))
+    config.endpoints.push(createAcceptQuoteEndpoint())
+    config.endpoints.push(createRejectQuoteEndpoint())
 
     // Admin components — tabbed UI + sidebar buttons
     const isSidebarField = (f: any) => 'admin' in f && f.admin?.position === 'sidebar'
@@ -87,6 +95,16 @@ export const invoicePdf =
             position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#GeneratePdfButton',
+            },
+          },
+        },
+        {
+          name: 'sendEmail',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#SendEmailButton',
             },
           },
         },
@@ -163,6 +181,16 @@ export const invoicePdf =
           },
         },
         {
+          name: 'sendEmail',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#SendEmailButton',
+            },
+          },
+        },
+        {
           name: 'relatedInvoicesView',
           type: 'ui',
           admin: {
@@ -179,6 +207,7 @@ export const invoicePdf =
   }
 
 // Re-export types and templates for consumers
-export type { InvoicePdfConfig, InvoiceTemplate, InvoiceTemplateProps } from './types.js'
+export type { InvoicePdfConfig, InvoiceTemplate, InvoiceTemplateProps, EmailTemplate, EmailTemplateProps } from './types.js'
+export { builtInEmailTemplates, AttachedPdfEmail, LiveDocumentLinkEmail } from './email-templates/index.js'
 export { builtInTemplates, classicTemplate, modernTemplate, minimalTemplate, boldTemplate } from './templates/index.js'
 export { ClassicTemplate, ModernTemplate, MinimalTemplate, BoldTemplate } from './templates/index.js'

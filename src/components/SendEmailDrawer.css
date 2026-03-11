@@ -1,0 +1,115 @@
+.send-email-drawer__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.send-email-drawer__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.send-email-drawer__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--theme-elevation-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.send-email-drawer__input {
+  padding: 8px 12px;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  font-size: 14px;
+  background: var(--theme-input-bg);
+  color: var(--theme-elevation-800);
+}
+
+.send-email-drawer__input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.send-email-drawer__input--readonly {
+  background: var(--theme-elevation-50);
+  color: var(--theme-elevation-500);
+}
+
+.send-email-drawer__select {
+  padding: 8px 12px;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  font-size: 14px;
+  background: var(--theme-input-bg);
+  color: var(--theme-elevation-800);
+}
+
+.send-email-drawer__template-desc {
+  font-size: 12px;
+  color: var(--theme-elevation-500);
+  line-height: 1.4;
+  margin-top: 4px;
+  padding: 8px;
+  background: var(--theme-elevation-50);
+  border-radius: 4px;
+}
+
+.send-email-drawer__warning {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 4px;
+}
+
+.send-email-drawer__actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.send-email-drawer__send-btn {
+  flex: 1;
+  padding: 10px 20px;
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.send-email-drawer__send-btn:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.send-email-drawer__send-btn:disabled {
+  background-color: var(--theme-elevation-300);
+  cursor: not-allowed;
+}
+
+.send-email-drawer__cancel-btn {
+  padding: 10px 20px;
+  background: none;
+  color: var(--theme-elevation-600);
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.send-email-drawer__cancel-btn:hover {
+  background: var(--theme-elevation-50);
+}
+
+.send-email-drawer__message {
+  font-size: 12px;
+  margin-top: 4px;
+  color: var(--theme-elevation-400);
+}
+
+.send-email-drawer__message--error {
+  color: #dc2626;
+}
