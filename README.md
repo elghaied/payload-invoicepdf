@@ -27,6 +27,26 @@ A Payload CMS 3.x plugin that adds complete invoice and quote management — JSX
 - **PDF History** — Every generated PDF is stored and versioned. Browse and download previous versions from the admin.
 - **Admin UI** — Tabbed document views, sidebar actions (download, generate, send, convert), email composer drawer, and related document links.
 
+## Screenshots
+
+### Quote Management
+<img src="assets/quotes_main.png" alt="Quote document view with client details, actions sidebar, and related invoices" width="800" />
+
+### PDF History
+<img src="assets/quotes_pdf_history.png" alt="PDF version history with download and delete options" width="800" />
+
+### Send Email Drawer
+<img src="assets/quotes_send_email_modal.png" alt="Email composer with delivery type toggle, template selection, and PDF attachment" width="800" />
+
+### Send History
+<img src="assets/quotes_email_history.png" alt="Send history tab showing all emails sent for a document" width="800" />
+
+### Quote Acceptance Page
+<img src="assets/link_with_accept_reject.png" alt="Client-facing quote page with Accept and Decline buttons" width="800" />
+
+### Email Template
+<img src="assets/email_template.png" alt="Professional email received by client with View Quote button and PDF attachment" width="800" />
+
 ## Quick Start
 
 ```bash
