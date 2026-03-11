@@ -9,15 +9,27 @@ export const DEFAULTS = {
   mediaCollection: 'media',
 } as const
 
-export const sanitizeConfig = (config: InvoicePdfConfig): SanitizedInvoicePdfConfig => ({
-  productCollection: config.productCollection,
-  productFieldMapping: config.productFieldMapping,
-  templates: config.templates,
-  invoiceNumberPrefix: config.invoiceNumberPrefix ?? DEFAULTS.invoiceNumberPrefix,
-  quoteNumberPrefix: config.quoteNumberPrefix ?? DEFAULTS.quoteNumberPrefix,
-  currency: config.currency ?? DEFAULTS.currency,
-  defaultTaxRate: config.defaultTaxRate ?? DEFAULTS.defaultTaxRate,
-  defaultPaymentTerms: config.defaultPaymentTerms ?? DEFAULTS.defaultPaymentTerms,
-  mediaCollection: config.mediaCollection ?? DEFAULTS.mediaCollection,
-  disabled: config.disabled ?? false,
-})
+export const sanitizeConfig = (config: InvoicePdfConfig): SanitizedInvoicePdfConfig => {
+  if (config.customerCollection && !config.customerFieldMapping) {
+    throw new Error(
+      'payload-invoicepdf: customerFieldMapping is required when customerCollection is configured',
+    )
+  }
+
+  return {
+    productCollection: config.productCollection,
+    productFieldMapping: config.productFieldMapping,
+    templates: config.templates,
+    invoiceNumberPrefix: config.invoiceNumberPrefix ?? DEFAULTS.invoiceNumberPrefix,
+    quoteNumberPrefix: config.quoteNumberPrefix ?? DEFAULTS.quoteNumberPrefix,
+    currency: config.currency ?? DEFAULTS.currency,
+    defaultTaxRate: config.defaultTaxRate ?? DEFAULTS.defaultTaxRate,
+    defaultPaymentTerms: config.defaultPaymentTerms ?? DEFAULTS.defaultPaymentTerms,
+    mediaCollection: config.mediaCollection ?? DEFAULTS.mediaCollection,
+    disabled: config.disabled ?? false,
+    customerCollection: config.customerCollection,
+    customerFieldMapping: config.customerFieldMapping,
+    customerFilterOptions: config.customerFilterOptions,
+    inlineClientFields: config.inlineClientFields ?? true,
+  }
+}
