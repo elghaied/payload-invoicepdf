@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     products: Product;
     media: Media;
+    customers: Customer;
     invoices: Invoice;
     quotes: Quote;
     users: User;
@@ -80,6 +81,7 @@ export interface Config {
   collectionsSelect: {
     products: ProductsSelect<false> | ProductsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
     invoices: InvoicesSelect<false> | InvoicesSelect<true>;
     quotes: QuotesSelect<false> | QuotesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -157,6 +159,24 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: string;
+  companyName: string;
+  email?: string | null;
+  vatNumber?: string | null;
+  address?: {
+    street?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "invoices".
  */
 export interface Invoice {
@@ -167,6 +187,10 @@ export interface Invoice {
   issueDate?: string | null;
   dueDate?: string | null;
   client: {
+    /**
+     * Select a customer to auto-fill client details
+     */
+    customer?: (string | null) | Customer;
     name: string;
     email?: string | null;
     address?: {
@@ -217,6 +241,10 @@ export interface Quote {
   issueDate?: string | null;
   validUntil?: string | null;
   client: {
+    /**
+     * Select a customer to auto-fill client details
+     */
+    customer?: (string | null) | Customer;
     name: string;
     email?: string | null;
     address?: {
@@ -286,6 +314,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'customers';
+        value: string | Customer;
       } | null)
     | ({
         relationTo: 'invoices';
@@ -373,6 +405,25 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  companyName?: T;
+  email?: T;
+  vatNumber?: T;
+  address?:
+    | T
+    | {
+        street?: T;
+        city?: T;
+        postalCode?: T;
+        country?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "invoices_select".
  */
 export interface InvoicesSelect<T extends boolean = true> {
@@ -384,6 +435,7 @@ export interface InvoicesSelect<T extends boolean = true> {
   client?:
     | T
     | {
+        customer?: T;
         name?: T;
         email?: T;
         address?:
@@ -428,6 +480,7 @@ export interface QuotesSelect<T extends boolean = true> {
   client?:
     | T
     | {
+        customer?: T;
         name?: T;
         email?: T;
         address?:
