@@ -1,21 +1,23 @@
 import type { CollectionAfterChangeHook } from 'payload'
-import type { SanitizedInvoicePdfConfig, ResolvedClientData } from '../types.js'
+
+import type { ResolvedClientData, SanitizedInvoicePdfConfig } from '../types.js'
+
 import { buildTemplateProps } from '../utils/build-template-props.js'
-import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 import { renderPdfToBuffer } from '../utils/render-pdf.js'
 import { resolveCustomerData } from '../utils/resolve-customer-data.js'
+import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 
 export const createGeneratePdfHook =
   (
     pluginConfig: SanitizedInvoicePdfConfig,
     type: 'invoice' | 'quote',
   ): CollectionAfterChangeHook =>
-  async ({ doc, req, context }) => {
+  async ({ context, doc, req }) => {
     // Prevent infinite loop when we update generatedPdfs
-    if (context.skipPdfGeneration) return doc
+    if (context.skipPdfGeneration) {return doc}
 
     // Skip PDF generation for drafts to avoid unnecessary overhead
-    if (doc.status === 'draft') return doc
+    if (doc.status === 'draft') {return doc}
 
     const templateName = doc.template || pluginConfig.templates[0]?.name
     const template = pluginConfig.templates.find((t) => t.name === templateName)
@@ -47,8 +49,8 @@ export const createGeneratePdfHook =
         if (customerId) {
           try {
             const customerDoc = await req.payload.findByID({
-              collection: pluginConfig.customerCollection as any,
               id: customerId,
+              collection: pluginConfig.customerCollection as any,
               depth: 0,
               req,
             })
@@ -69,12 +71,12 @@ export const createGeneratePdfHook =
       }
 
       const props = buildTemplateProps({
-        doc,
-        shopInfo: shopInfo as any,
-        config: pluginConfig,
         type,
+        config: pluginConfig,
+        doc,
         logoDataUri,
         resolvedClient,
+        shopInfo: shopInfo as any,
       })
 
       const pdfBuffer = await renderPdfToBuffer(template, props)
@@ -85,9 +87,9 @@ export const createGeneratePdfHook =
 
       // Upload the PDF to the configured media collection
       const file = {
+        name: fileName,
         data: pdfBuffer,
         mimetype: 'application/pdf',
-        name: fileName,
         size: pdfBuffer.length,
       }
 
@@ -103,18 +105,18 @@ export const createGeneratePdfHook =
         .map((entry: any) => (typeof entry === 'object' ? entry.id : entry))
 
       const updatedDoc = await req.payload.update({
-        collection: collectionSlug as any,
         id: doc.id,
-        data: { generatedPdfs: [mediaDoc.id, ...existingPdfs] },
+        collection: collectionSlug as any,
         context: { skipPdfGeneration: true },
+        data: { generatedPdfs: [mediaDoc.id, ...existingPdfs] },
         req,
       })
 
       return updatedDoc
     } catch (error) {
       req.payload.logger.error({
-        msg: `Failed to generate PDF for ${type} ${doc.id}`,
         err: error as Error,
+        msg: `Failed to generate PDF for ${type} ${doc.id}`,
       })
     }
 

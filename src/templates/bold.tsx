@@ -1,87 +1,88 @@
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import React from 'react'
-import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
+
 import type { InvoiceTemplateProps } from '../types.js'
 
 const PRIMARY = '#1e293b'
 const ACCENT = '#f59e0b'
 
 const styles = StyleSheet.create({
-  page: { padding: 0, fontSize: 10, fontFamily: 'Helvetica', color: '#333' },
-  headerBlock: {
-    backgroundColor: PRIMARY,
-    padding: 30,
-    paddingBottom: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  logo: { width: 80, height: 40, objectFit: 'contain', marginBottom: 8 },
-  companyName: { fontSize: 20, fontWeight: 'bold', color: '#fff' },
-  companyDetail: { fontSize: 9, color: '#94a3b8' },
-  docTitle: { fontSize: 26, fontWeight: 'bold', color: ACCENT },
-  docNumber: { fontSize: 11, color: '#cbd5e1', textAlign: 'right', marginTop: 2 },
-  statusBadge: {
-    backgroundColor: ACCENT,
-    color: PRIMARY,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 3,
-    fontSize: 9,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 6,
-    alignSelf: 'flex-end',
-  },
   body: { padding: 30 },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
-  infoCol: { width: '45%' },
-  label: { fontSize: 8, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 },
   bold: { fontWeight: 'bold' },
-  table: { marginTop: 10 },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: PRIMARY,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-  thText: { color: '#fff', fontWeight: 'bold', fontSize: 9 },
-  tableRow: {
-    flexDirection: 'row',
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
   colDesc: { flex: 3 },
-  colQty: { flex: 1, textAlign: 'right' },
   colPrice: { flex: 1.2, textAlign: 'right' },
+  colQty: { flex: 1, textAlign: 'right' },
   colTax: { flex: 0.8, textAlign: 'right' },
   colTotal: { flex: 1.2, textAlign: 'right' },
+  companyDetail: { color: '#94a3b8', fontSize: 9 },
+  companyName: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+  docNumber: { color: '#cbd5e1', fontSize: 11, marginTop: 2, textAlign: 'right' },
+  docTitle: { color: ACCENT, fontSize: 26, fontWeight: 'bold' },
+  footer: { bottom: 24, color: '#94a3b8', fontSize: 7, left: 30, position: 'absolute', right: 30, textAlign: 'center' },
+  grandTotalBlock: {
+    backgroundColor: PRIMARY,
+    borderRadius: 4,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
+    padding: 10,
+    width: 220,
+  },
+  grandTotalText: { color: ACCENT, fontSize: 14, fontWeight: 'bold' },
+  headerBlock: {
+    alignItems: 'flex-start',
+    backgroundColor: PRIMARY,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 30,
+    paddingBottom: 24,
+  },
+  infoCol: { width: '45%' },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
+  label: { color: '#94a3b8', fontSize: 8, letterSpacing: 1, marginBottom: 3, textTransform: 'uppercase' },
+  logo: { height: 40, marginBottom: 8, objectFit: 'contain', width: 80 },
+  notes: { backgroundColor: '#f8fafc', borderLeftColor: ACCENT, borderLeftWidth: 3, marginTop: 24, padding: 12 },
+  page: { color: '#333', fontFamily: 'Helvetica', fontSize: 10, padding: 0 },
+  statusBadge: {
+    alignSelf: 'flex-end',
+    backgroundColor: ACCENT,
+    borderRadius: 3,
+    color: PRIMARY,
+    fontSize: 9,
+    fontWeight: 'bold',
+    marginTop: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    textAlign: 'center',
+  },
+  table: { marginTop: 10 },
+  tableHeader: {
+    backgroundColor: PRIMARY,
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  tableRow: {
+    borderBottomColor: '#e2e8f0',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+  },
+  thText: { color: '#fff', fontSize: 9, fontWeight: 'bold' },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4, width: 220 },
   totalsBlock: {
     alignItems: 'flex-end',
     marginTop: 16,
   },
-  totalRow: { flexDirection: 'row', width: 220, justifyContent: 'space-between', marginBottom: 4 },
-  grandTotalBlock: {
-    flexDirection: 'row',
-    width: 220,
-    justifyContent: 'space-between',
-    backgroundColor: PRIMARY,
-    padding: 10,
-    borderRadius: 4,
-    marginTop: 6,
-  },
-  grandTotalText: { color: ACCENT, fontSize: 14, fontWeight: 'bold' },
-  notes: { marginTop: 24, padding: 12, backgroundColor: '#f8fafc', borderLeftWidth: 3, borderLeftColor: ACCENT },
-  footer: { position: 'absolute', bottom: 24, left: 30, right: 30, fontSize: 7, color: '#94a3b8', textAlign: 'center' },
 })
 
 const fmt = (n: number, c: string) => `${c}${n.toFixed(2)}`
 
 export const BoldTemplate: React.FC<InvoiceTemplateProps> = (props) => {
   const {
-    type, documentNumber, status, issueDate, dueDate, validUntil,
-    company, client, items, subtotal, taxTotal, total, currency, notes,
+    type, client, company, currency, documentNumber, dueDate,
+    issueDate, items, notes, status, subtotal, taxTotal, total, validUntil,
   } = props
 
   const title = type === 'invoice' ? 'INVOICE' : 'QUOTE'

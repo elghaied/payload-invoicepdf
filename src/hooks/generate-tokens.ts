@@ -1,9 +1,10 @@
-import crypto from 'crypto'
 import type { CollectionBeforeChangeHook } from 'payload'
 
+import crypto from 'crypto'
+
 export const createGenerateTokensHook = (): CollectionBeforeChangeHook =>
-  async ({ data, operation }) => {
-    if (operation !== 'create') return data
+  ({ data, operation }) => {
+    if (operation !== 'create') {return data}
 
     data.acceptToken = crypto.randomBytes(32).toString('hex')
     data.rejectToken = crypto.randomBytes(32).toString('hex')

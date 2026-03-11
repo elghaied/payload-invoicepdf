@@ -5,8 +5,8 @@ export const convertQuoteToInvoice = async (
   quoteId: string,
 ): Promise<{ invoiceId: string; quoteNumber: string }> => {
   const quote = await req.payload.findByID({
-    collection: 'quotes' as any,
     id: quoteId,
+    collection: 'quotes' as any,
     depth: 0,
     req,
   })
@@ -21,19 +21,19 @@ export const convertQuoteToInvoice = async (
   const invoice = await req.payload.create({
     collection: 'invoices' as any,
     data: {
-      status: 'draft',
-      template: quoteData.template,
-      issueDate: new Date().toISOString(),
       client: quoteData.client,
+      issueDate: new Date().toISOString(),
       items: quoteData.items?.map((item: any) => ({
-        product: item.product,
         description: item.description,
+        product: item.product,
         quantity: item.quantity,
-        unitPrice: item.unitPrice,
         taxRate: item.taxRate,
+        unitPrice: item.unitPrice,
       })),
       notes: quoteData.notes,
       sourceQuote: quoteId,
+      status: 'draft',
+      template: quoteData.template,
     },
     req,
   })
@@ -43,11 +43,11 @@ export const convertQuoteToInvoice = async (
     ? quoteData.relatedInvoices.map((r: any) => (typeof r === 'object' ? r.id : r))
     : []
   await req.payload.update({
-    collection: 'quotes' as any,
     id: quoteId,
+    collection: 'quotes' as any,
     data: {
-      status: 'accepted',
       relatedInvoices: [...existingRelated, invoice.id],
+      status: 'accepted',
     },
     req,
   })

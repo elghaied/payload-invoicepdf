@@ -1,63 +1,64 @@
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import React from 'react'
-import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
+
 import type { InvoiceTemplateProps } from '../types.js'
 
 const ACCENT = '#2563eb'
 
 const styles = StyleSheet.create({
-  page: { padding: 0, fontSize: 10, fontFamily: 'Helvetica', color: '#1a1a1a' },
-  accentBar: { height: 6, backgroundColor: ACCENT },
-  content: { padding: 40 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
-  logo: { width: 100, height: 50, objectFit: 'contain', marginBottom: 8 },
-  companyName: { fontSize: 16, fontWeight: 'bold', color: ACCENT },
-  docTitle: { fontSize: 20, fontWeight: 'bold', color: ACCENT, textAlign: 'right' },
-  docNumber: { fontSize: 11, color: '#666', textAlign: 'right', marginTop: 2 },
-  columns: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
+  accentBar: { backgroundColor: ACCENT, height: 6 },
+  colDesc: { flex: 3 },
+  colPrice: { flex: 1, textAlign: 'right' },
+  colQty: { flex: 1, textAlign: 'right' },
+  colTax: { flex: 1, textAlign: 'right' },
+  colTotal: { flex: 1, textAlign: 'right' },
   column: { width: '48%' },
-  label: { fontSize: 8, color: '#999', textTransform: 'uppercase', marginBottom: 3, letterSpacing: 1 },
+  columns: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
+  companyName: { color: ACCENT, fontSize: 16, fontWeight: 'bold' },
+  content: { padding: 40 },
+  docNumber: { color: '#666', fontSize: 11, marginTop: 2, textAlign: 'right' },
+  docTitle: { color: ACCENT, fontSize: 20, fontWeight: 'bold', textAlign: 'right' },
+  footer: { bottom: 30, color: '#94a3b8', fontSize: 8, left: 40, position: 'absolute', right: 40, textAlign: 'center' },
+  grandTotal: {
+    borderTopColor: ACCENT,
+    borderTopWidth: 2,
+    color: ACCENT,
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 4,
+    paddingTop: 6,
+  },
+  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
+  label: { color: '#999', fontSize: 8, letterSpacing: 1, marginBottom: 3, textTransform: 'uppercase' },
+  logo: { height: 50, marginBottom: 8, objectFit: 'contain', width: 100 },
+  meta: { color: '#666', fontSize: 9, marginTop: 4 },
+  notes: { backgroundColor: '#f1f5f9', borderRadius: 4, marginTop: 24, padding: 12 },
+  page: { color: '#1a1a1a', fontFamily: 'Helvetica', fontSize: 10, padding: 0 },
   table: { marginTop: 8 },
   tableHeader: {
-    flexDirection: 'row',
     backgroundColor: ACCENT,
     color: '#fff',
-    paddingVertical: 8,
+    flexDirection: 'row',
     paddingHorizontal: 10,
+    paddingVertical: 8,
   },
   tableHeaderText: { color: '#fff', fontWeight: 'bold' },
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 7,
     paddingHorizontal: 10,
+    paddingVertical: 7,
   },
   tableRowAlt: { backgroundColor: '#f8fafc' },
-  colDesc: { flex: 3 },
-  colQty: { flex: 1, textAlign: 'right' },
-  colPrice: { flex: 1, textAlign: 'right' },
-  colTax: { flex: 1, textAlign: 'right' },
-  colTotal: { flex: 1, textAlign: 'right' },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4, width: 220 },
   totalsBlock: { alignItems: 'flex-end', marginTop: 20 },
-  totalRow: { flexDirection: 'row', width: 220, justifyContent: 'space-between', marginBottom: 4 },
-  grandTotal: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: ACCENT,
-    borderTopWidth: 2,
-    borderTopColor: ACCENT,
-    paddingTop: 6,
-    marginTop: 4,
-  },
-  notes: { marginTop: 24, padding: 12, backgroundColor: '#f1f5f9', borderRadius: 4 },
-  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, fontSize: 8, color: '#94a3b8', textAlign: 'center' },
-  meta: { fontSize: 9, color: '#666', marginTop: 4 },
 })
 
 const fmt = (n: number, c: string) => `${c}${n.toFixed(2)}`
 
 export const ModernTemplate: React.FC<InvoiceTemplateProps> = (props) => {
   const {
-    type, documentNumber, status, issueDate, dueDate, validUntil,
-    company, client, items, subtotal, taxTotal, total, currency, notes,
+    type, client, company, currency, documentNumber, dueDate,
+    issueDate, items, notes, status, subtotal, taxTotal, total, validUntil,
   } = props
 
   const title = type === 'invoice' ? 'Invoice' : 'Quote'

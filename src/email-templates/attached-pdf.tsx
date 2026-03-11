@@ -1,32 +1,33 @@
 import React from 'react'
+
 import type { EmailTemplateProps } from '../types.js'
 
 export const AttachedPdfEmail: React.FC<EmailTemplateProps> = ({
   type,
-  documentNumber,
   client,
   company,
+  documentNumber,
 }) => {
   const docLabel = type === 'invoice' ? 'Invoice' : 'Quote'
 
   return (
-    <html>
-      <body style={{ margin: 0, padding: 0, backgroundColor: '#f4f4f5', fontFamily: 'Arial, Helvetica, sans-serif' }}>
-        <table width="100%" cellPadding={0} cellSpacing={0} style={{ backgroundColor: '#f4f4f5', padding: '32px 0' }}>
+    <html lang="en">
+      <body style={{ backgroundColor: '#f4f4f5', fontFamily: 'Arial, Helvetica, sans-serif', margin: 0, padding: 0 }}>
+        <table cellPadding={0} cellSpacing={0} style={{ backgroundColor: '#f4f4f5', padding: '32px 0' }} width="100%">
           <tr>
             <td align="center">
-              <table width="600" cellPadding={0} cellSpacing={0} style={{ backgroundColor: '#ffffff', borderRadius: '8px', overflow: 'hidden' }}>
+              <table cellPadding={0} cellSpacing={0} style={{ backgroundColor: '#ffffff', borderRadius: '8px', overflow: 'hidden' }} width="600">
                 {/* Header */}
                 <tr>
-                  <td style={{ padding: '32px 40px 24px', borderBottom: '1px solid #e4e4e7' }}>
+                  <td style={{ borderBottom: '1px solid #e4e4e7', padding: '32px 40px 24px' }}>
                     {company.logo ? (
                       <img
-                        src={company.logo}
                         alt={company.name}
+                        src={company.logo}
                         style={{ maxHeight: '48px', maxWidth: '200px' }}
                       />
                     ) : (
-                      <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#18181b' }}>
+                      <span style={{ color: '#18181b', fontSize: '20px', fontWeight: 'bold' }}>
                         {company.name}
                       </span>
                     )}
@@ -36,13 +37,13 @@ export const AttachedPdfEmail: React.FC<EmailTemplateProps> = ({
                 {/* Body */}
                 <tr>
                   <td style={{ padding: '32px 40px' }}>
-                    <p style={{ fontSize: '16px', color: '#18181b', margin: '0 0 16px' }}>
+                    <p style={{ color: '#18181b', fontSize: '16px', margin: '0 0 16px' }}>
                       Dear {client.name},
                     </p>
-                    <p style={{ fontSize: '14px', color: '#3f3f46', lineHeight: '1.6', margin: '0 0 16px' }}>
+                    <p style={{ color: '#3f3f46', fontSize: '14px', lineHeight: '1.6', margin: '0 0 16px' }}>
                       Please find attached {docLabel} <strong>{documentNumber}</strong>.
                     </p>
-                    <p style={{ fontSize: '14px', color: '#3f3f46', lineHeight: '1.6', margin: '0 0 24px' }}>
+                    <p style={{ color: '#3f3f46', fontSize: '14px', lineHeight: '1.6', margin: '0 0 24px' }}>
                       If you have any questions, please don&apos;t hesitate to reach out.
                     </p>
 
@@ -50,21 +51,21 @@ export const AttachedPdfEmail: React.FC<EmailTemplateProps> = ({
                     <table cellPadding={0} cellSpacing={0} style={{ borderTop: '1px solid #e4e4e7', paddingTop: '16px' }}>
                       <tr>
                         <td style={{ paddingTop: '16px' }}>
-                          <p style={{ fontSize: '14px', color: '#18181b', fontWeight: 'bold', margin: '0 0 4px' }}>
+                          <p style={{ color: '#18181b', fontSize: '14px', fontWeight: 'bold', margin: '0 0 4px' }}>
                             {company.name}
                           </p>
                           {company.phone && (
-                            <p style={{ fontSize: '13px', color: '#71717a', margin: '0 0 2px' }}>
+                            <p style={{ color: '#71717a', fontSize: '13px', margin: '0 0 2px' }}>
                               {company.phone}
                             </p>
                           )}
                           {company.email && (
-                            <p style={{ fontSize: '13px', color: '#71717a', margin: '0 0 2px' }}>
+                            <p style={{ color: '#71717a', fontSize: '13px', margin: '0 0 2px' }}>
                               {company.email}
                             </p>
                           )}
                           {company.website && (
-                            <p style={{ fontSize: '13px', color: '#71717a', margin: '0' }}>
+                            <p style={{ color: '#71717a', fontSize: '13px', margin: '0' }}>
                               {company.website}
                             </p>
                           )}
@@ -77,8 +78,8 @@ export const AttachedPdfEmail: React.FC<EmailTemplateProps> = ({
                 {/* Footer */}
                 {company.legalMentions && (
                   <tr>
-                    <td style={{ padding: '16px 40px', backgroundColor: '#fafafa', borderTop: '1px solid #e4e4e7' }}>
-                      <p style={{ fontSize: '11px', color: '#a1a1aa', margin: 0, lineHeight: '1.5' }}>
+                    <td style={{ backgroundColor: '#fafafa', borderTop: '1px solid #e4e4e7', padding: '16px 40px' }}>
+                      <p style={{ color: '#a1a1aa', fontSize: '11px', lineHeight: '1.5', margin: 0 }}>
                         {company.legalMentions}
                       </p>
                     </td>

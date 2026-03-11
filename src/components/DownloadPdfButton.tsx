@@ -1,18 +1,19 @@
 'use client'
 
+import { useConfig, useDocumentInfo } from '@payloadcms/ui'
 import React, { useEffect, useState } from 'react'
-import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+
 import './SidebarButton.css'
 
 export const DownloadPdfButton: React.FC = () => {
   const { id, collectionSlug } = useDocumentInfo()
   const { config } = useConfig()
-  const [latestUrl, setLatestUrl] = useState<string | null>(null)
+  const [latestUrl, setLatestUrl] = useState<null | string>(null)
 
   const serverUrl = config.serverURL || ''
 
   useEffect(() => {
-    if (!id || !collectionSlug) return
+    if (!id || !collectionSlug) {return}
 
     let cancelled = false
     const fetchLatest = async () => {
@@ -33,19 +34,19 @@ export const DownloadPdfButton: React.FC = () => {
       }
     }
 
-    fetchLatest()
+    void fetchLatest()
     return () => { cancelled = true }
   }, [id, collectionSlug, config.routes.api, serverUrl])
 
-  if (!latestUrl || !id) return null
+  if (!latestUrl || !id) {return null}
 
   return (
     <div className="sidebar-button">
       <a
-        href={latestUrl}
-        target="_blank"
-        rel="noopener noreferrer"
         className="sidebar-button__link"
+        href={latestUrl}
+        rel="noopener noreferrer"
+        target="_blank"
       >
         Download Latest PDF
       </a>

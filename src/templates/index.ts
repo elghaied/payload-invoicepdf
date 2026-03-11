@@ -1,8 +1,9 @@
 import type { InvoiceTemplate } from '../types.js'
-import { ClassicTemplate } from './classic.js'
-import { ModernTemplate } from './modern.js'
-import { MinimalTemplate } from './minimal.js'
+
 import { BoldTemplate } from './bold.js'
+import { ClassicTemplate } from './classic.js'
+import { MinimalTemplate } from './minimal.js'
+import { ModernTemplate } from './modern.js'
 
 export const classicTemplate: InvoiceTemplate = {
   name: 'Classic',
@@ -31,4 +32,4 @@ export const builtInTemplates: InvoiceTemplate[] = [
   boldTemplate,
 ]
 
-export { ClassicTemplate, ModernTemplate, MinimalTemplate, BoldTemplate }
+export { BoldTemplate, ClassicTemplate, MinimalTemplate, ModernTemplate }

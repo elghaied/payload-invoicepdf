@@ -1,10 +1,11 @@
 import type { CollectionBeforeChangeHook } from 'payload'
+
 import type { SanitizedInvoicePdfConfig } from '../types.js'
 
 export const createCalculateDueDateHook =
   (pluginConfig: SanitizedInvoicePdfConfig): CollectionBeforeChangeHook =>
   async ({ data, req }) => {
-    if (!data.issueDate) return data
+    if (!data.issueDate) {return data}
 
     const issueDate = new Date(data.issueDate)
     const shopInfo = await req.payload.findGlobal({

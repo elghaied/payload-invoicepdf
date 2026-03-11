@@ -1,7 +1,8 @@
 'use client'
 
+import { Drawer, toast, useConfig, useModal } from '@payloadcms/ui'
 import React, { useCallback, useEffect, useState } from 'react'
-import { useConfig, useModal, Drawer, toast } from '@payloadcms/ui'
+
 import './SendEmailDrawer.css'
 
 interface EmailConfig {
@@ -11,22 +12,22 @@ interface EmailConfig {
 }
 
 interface PdfOption {
-  id: string
-  filename: string
   createdAt: string
+  filename: string
+  id: string
 }
 
 interface EmailTemplateOption {
-  name: string
-  label: string
   description: string
   kind: 'attachment' | 'link'
+  label: string
+  name: string
 }
 
 interface Props {
-  type: 'invoice' | 'quote'
   documentId: string
   emailConfig: EmailConfig
+  type: 'invoice' | 'quote'
 }
 
 export const SEND_EMAIL_DRAWER_SLUG = 'send-email-drawer'
@@ -63,7 +64,7 @@ export const SendEmailDrawer: React.FC<Props> = ({
         const res = await fetch(`${apiRoute}/${collectionSlug}/${documentId}?depth=1`, {
           credentials: 'include',
         })
-        if (cancelled || !res.ok) return
+        if (cancelled || !res.ok) {return}
 
         const doc = await res.json()
 
@@ -83,8 +84,8 @@ export const SendEmailDrawer: React.FC<Props> = ({
           .filter((p: any) => typeof p === 'object' && p.id)
           .map((p: any) => ({
             id: p.id,
-            filename: p.filename || 'Unknown',
             createdAt: p.createdAt || '',
+            filename: p.filename || 'Unknown',
           }))
         setPdfOptions(pdfOpts)
         if (pdfOpts.length > 0) {
@@ -94,7 +95,7 @@ export const SendEmailDrawer: React.FC<Props> = ({
         // silently fail
       }
     }
-    fetchData()
+    void fetchData()
     return () => { cancelled = true }
   }, [apiRoute, type, documentId])
 
@@ -106,7 +107,7 @@ export const SendEmailDrawer: React.FC<Props> = ({
         const res = await fetch(`${apiRoute}/invoicepdf/email-config?includeTemplates=true&type=${type}`, {
           credentials: 'include',
         })
-        if (cancelled || !res.ok) return
+        if (cancelled || !res.ok) {return}
         const data = await res.json()
         if (data.templates) {
           setTemplates(data.templates)
@@ -127,7 +128,7 @@ export const SendEmailDrawer: React.FC<Props> = ({
         // silently fail
       }
     }
-    fetchTemplates()
+    void fetchTemplates()
     return () => { cancelled = true }
   }, [apiRoute, type, selectedKind, templateName])
 
@@ -149,17 +150,17 @@ export const SendEmailDrawer: React.FC<Props> = ({
     setSending(true)
     try {
       const res = await fetch(`${apiRoute}/invoicepdf/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({
-          type,
           id: documentId,
-          to,
+          type,
+          attachedPdfId: selectedPdfId || undefined,
           subject,
           templateName,
-          attachedPdfId: selectedPdfId || undefined,
+          to,
         }),
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
       })
 
       const data = await res.json()
@@ -178,13 +179,13 @@ export const SendEmailDrawer: React.FC<Props> = ({
   }, [apiRoute, type, documentId, to, subject, templateName, selectedPdfId, closeModal])
 
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return ''
+    if (!dateStr) {return ''}
     return new Date(dateStr).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      month: 'short',
+      year: 'numeric',
     })
   }
 
@@ -195,11 +196,11 @@ export const SendEmailDrawer: React.FC<Props> = ({
         <div className="send-email-drawer__field">
           <label className="send-email-drawer__label">To</label>
           <input
-            type="email"
             className="send-email-drawer__input"
-            value={to}
             onChange={(e) => setTo(e.target.value)}
             placeholder="client@example.com"
+            type="email"
+            value={to}
           />
         </div>
 
@@ -207,10 +208,10 @@ export const SendEmailDrawer: React.FC<Props> = ({
         <div className="send-email-drawer__field">
           <label className="send-email-drawer__label">From</label>
           <input
-            type="text"
             className="send-email-drawer__input send-email-drawer__input--readonly"
-            value={fromDisplay}
             disabled
+            type="text"
+            value={fromDisplay}
           />
         </div>
 
@@ -218,10 +219,10 @@ export const SendEmailDrawer: React.FC<Props> = ({
         <div className="send-email-drawer__field">
           <label className="send-email-drawer__label">Subject</label>
           <input
-            type="text"
             className="send-email-drawer__input"
-            value={subject}
             onChange={(e) => setSubject(e.target.value)}
+            type="text"
+            value={subject}
           />
         </div>
 
@@ -231,18 +232,18 @@ export const SendEmailDrawer: React.FC<Props> = ({
           <div className="send-email-drawer__kind-toggle">
             {availableKinds.includes('attachment') && (
               <button
-                type="button"
                 className={`send-email-drawer__kind-btn${selectedKind === 'attachment' ? ' send-email-drawer__kind-btn--active' : ''}`}
                 onClick={() => handleKindChange('attachment')}
+                type="button"
               >
                 Attachment
               </button>
             )}
             {availableKinds.includes('link') && (
               <button
-                type="button"
                 className={`send-email-drawer__kind-btn${selectedKind === 'link' ? ' send-email-drawer__kind-btn--active' : ''}`}
                 onClick={() => handleKindChange('link')}
+                type="button"
               >
                 Link
               </button>
@@ -260,8 +261,8 @@ export const SendEmailDrawer: React.FC<Props> = ({
           <label className="send-email-drawer__label">Email Template</label>
           <select
             className="send-email-drawer__select"
-            value={templateName}
             onChange={(e) => setTemplateName(e.target.value)}
+            value={templateName}
           >
             {filteredTemplates.map((t) => (
               <option key={t.name} value={t.name}>
@@ -284,8 +285,8 @@ export const SendEmailDrawer: React.FC<Props> = ({
             </label>
             <select
               className="send-email-drawer__select"
-              value={selectedPdfId}
               onChange={(e) => setSelectedPdfId(e.target.value)}
+              value={selectedPdfId}
             >
               {isLink && <option value="">None</option>}
               {pdfOptions.map((pdf, index) => (
@@ -300,17 +301,17 @@ export const SendEmailDrawer: React.FC<Props> = ({
         {/* Actions */}
         <div className="send-email-drawer__actions">
           <button
-            type="button"
             className="send-email-drawer__send-btn"
-            onClick={handleSend}
             disabled={sendDisabled}
+            onClick={handleSend}
+            type="button"
           >
             {sending ? 'Sending...' : 'Send'}
           </button>
           <button
-            type="button"
             className="send-email-drawer__cancel-btn"
             onClick={() => closeModal(SEND_EMAIL_DRAWER_SLUG)}
+            type="button"
           >
             Cancel
           </button>

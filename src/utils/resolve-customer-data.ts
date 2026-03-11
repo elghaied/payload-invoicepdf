@@ -1,4 +1,4 @@
-import type { SanitizedInvoicePdfConfig, ResolvedClientData } from '../types.js'
+import type { ResolvedClientData, SanitizedInvoicePdfConfig } from '../types.js'
 
 /**
  * Traverse an object by dot-separated path (e.g., 'address.street').
@@ -41,34 +41,34 @@ export const resolveCustomerData = (
 
   if (fieldMapping.email) {
     const email = getByPath(customerDoc, fieldMapping.email)
-    if (email != null) result.email = String(email)
+    if (email != null) {result.email = String(email)}
   }
 
   if (fieldMapping.vatNumber) {
     const vatNumber = getByPath(customerDoc, fieldMapping.vatNumber)
-    if (vatNumber != null) result.vatNumber = String(vatNumber)
+    if (vatNumber != null) {result.vatNumber = String(vatNumber)}
   }
 
   if (fieldMapping.address) {
-    const address: { street?: string; city?: string; postalCode?: string; country?: string } = {}
+    const address: { city?: string; country?: string; postalCode?: string; street?: string } = {}
     const addrMapping = fieldMapping.address
     if (addrMapping.street) {
       const v = getByPath(customerDoc, addrMapping.street)
-      if (v != null) address.street = String(v)
+      if (v != null) {address.street = String(v)}
     }
     if (addrMapping.city) {
       const v = getByPath(customerDoc, addrMapping.city)
-      if (v != null) address.city = String(v)
+      if (v != null) {address.city = String(v)}
     }
     if (addrMapping.postalCode) {
       const v = getByPath(customerDoc, addrMapping.postalCode)
-      if (v != null) address.postalCode = String(v)
+      if (v != null) {address.postalCode = String(v)}
     }
     if (addrMapping.country) {
       const v = getByPath(customerDoc, addrMapping.country)
-      if (v != null) address.country = String(v)
+      if (v != null) {address.country = String(v)}
     }
-    if (Object.keys(address).length > 0) result.address = address
+    if (Object.keys(address).length > 0) {result.address = address}
   }
 
   return result

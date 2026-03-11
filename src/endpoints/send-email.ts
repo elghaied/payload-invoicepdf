@@ -1,16 +1,17 @@
+import type { Endpoint } from 'payload'
+
 import crypto from 'crypto'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import type { Endpoint } from 'payload'
+
 import type { SanitizedInvoicePdfConfig } from '../types.js'
+
 import { buildEmailTemplateProps } from '../utils/build-email-template-props.js'
 import { renderEmailToHtml } from '../utils/render-email.js'
 
 export const createSendEmailEndpoint = (
   pluginConfig: SanitizedInvoicePdfConfig,
 ): Endpoint => ({
-  path: '/invoicepdf/send-email',
-  method: 'post',
   handler: async (req) => {
     if (!req.user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
@@ -22,7 +23,7 @@ export const createSendEmailEndpoint = (
     }
 
     const body = await req.json?.()
-    const { type, id, to, subject, templateName, attachedPdfId } = body || {}
+    const { id, type, attachedPdfId, subject, templateName, to } = body || {}
 
     if (!type || !id || !to || !subject || !templateName) {
       return Response.json(
@@ -53,8 +54,8 @@ export const createSendEmailEndpoint = (
 
     try {
       const doc = await req.payload.findByID({
-        collection: collectionSlug as any,
         id,
+        collection: collectionSlug as any,
         depth: 1,
         req,
       })
@@ -90,10 +91,10 @@ export const createSendEmailEndpoint = (
           const tokenExpiresAt = docData.validUntil || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
           await req.payload.update({
-            collection: 'quotes' as any,
             id,
-            data: { acceptToken, rejectToken, tokenExpiresAt },
+            collection: 'quotes' as any,
             context: { skipPdfGeneration: true },
+            data: { acceptToken, rejectToken, tokenExpiresAt },
             req,
           })
 
@@ -111,10 +112,10 @@ export const createSendEmailEndpoint = (
         ''
 
       const emailProps = buildEmailTemplateProps({
+        type,
         doc: doc as any,
         serverUrl,
         shopInfo: shopInfo as any,
-        type,
         viewUrl,
       })
 
@@ -126,17 +127,17 @@ export const createSendEmailEndpoint = (
         : emailAdapter.defaultFromAddress
 
       const emailOptions: Record<string, any> = {
-        to,
         from,
-        subject,
         html,
+        subject,
+        to,
       }
 
       // Attach PDF file if one was selected
       if (attachedPdfId) {
         const mediaDoc = await req.payload.findByID({
-          collection: pluginConfig.mediaCollection as any,
           id: attachedPdfId,
+          collection: pluginConfig.mediaCollection as any,
           depth: 0,
           req,
         })
@@ -179,12 +180,12 @@ export const createSendEmailEndpoint = (
         sendHistory: [
           ...existingHistory,
           {
-            sentAt: new Date().toISOString(),
-            to,
-            templateUsed: templateName,
-            subject,
             attachedPdf: attachedPdfId || undefined,
+            sentAt: new Date().toISOString(),
             sentBy: typeof req.user === 'object' ? req.user.id : req.user,
+            subject,
+            templateUsed: templateName,
+            to,
           },
         ],
       }
@@ -195,17 +196,19 @@ export const createSendEmailEndpoint = (
       }
 
       await req.payload.update({
-        collection: collectionSlug as any,
         id,
-        data: updateData,
+        collection: collectionSlug as any,
         context: { skipPdfGeneration: true },
+        data: updateData,
         req,
       })
 
-      return Response.json({ success: true, message: 'Email sent successfully' })
+      return Response.json({ message: 'Email sent successfully', success: true })
     } catch (error) {
-      req.payload.logger.error({ msg: 'Send email failed', err: error as Error })
+      req.payload.logger.error({ err: error as Error, msg: 'Send email failed' })
       return Response.json({ error: 'Failed to send email' }, { status: 500 })
     }
   },
+  method: 'post',
+  path: '/invoicepdf/send-email',
 })

@@ -1,19 +1,20 @@
 'use client'
 
+import { useConfig, useDocumentInfo } from '@payloadcms/ui'
 import React, { useCallback, useState } from 'react'
-import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+
 import './SidebarButton.css'
 
 export const GeneratePdfButton: React.FC = () => {
   const { id, collectionSlug } = useDocumentInfo()
   const { config } = useConfig()
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
+  const [message, setMessage] = useState<null | string>(null)
 
   const type = collectionSlug === 'invoices' ? 'invoice' : 'quote'
 
   const handleGenerate = useCallback(async () => {
-    if (!id) return
+    if (!id) {return}
     setLoading(true)
     setMessage(null)
 
@@ -21,10 +22,10 @@ export const GeneratePdfButton: React.FC = () => {
       const apiUrl = `${config.routes.api}/invoicepdf/generate-pdf`
 
       const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, type }),
         credentials: 'include',
-        body: JSON.stringify({ type, id }),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
       })
 
       if (res.ok) {
@@ -47,7 +48,7 @@ export const GeneratePdfButton: React.FC = () => {
     }
   }, [id, type, config.routes.api])
 
-  if (!id) return null
+  if (!id) {return null}
 
   return (
     <div className="sidebar-button">
@@ -55,10 +56,10 @@ export const GeneratePdfButton: React.FC = () => {
         Save your changes before generating — unsaved edits won't appear in the PDF.
       </p>
       <button
-        type="button"
-        onClick={handleGenerate}
-        disabled={loading}
         className="sidebar-button__btn sidebar-button__btn--generate"
+        disabled={loading}
+        onClick={handleGenerate}
+        type="button"
       >
         {loading ? 'Generating...' : 'Generate PDF'}
       </button>

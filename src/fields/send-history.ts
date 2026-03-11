@@ -5,30 +5,30 @@ export const createSendHistoryFields = (mediaCollection: string): Field[] => [
     name: 'lastSentAt',
     type: 'date',
     admin: {
-      readOnly: true,
       date: { pickerAppearance: 'dayAndTime' },
+      readOnly: true,
     },
   },
   {
     name: 'sendHistory',
     type: 'array',
     admin: {
-      readOnly: true,
-      initCollapsed: true,
       components: {
         RowLabel: {
-          path: 'payload-invoicepdf/client',
           exportName: 'SendHistoryRowLabel',
+          path: 'payload-invoicepdf/client',
         },
       },
+      initCollapsed: true,
+      readOnly: true,
     },
     fields: [
       {
         name: 'sentAt',
         type: 'date',
         admin: {
-          readOnly: true,
           date: { pickerAppearance: 'dayAndTime' },
+          readOnly: true,
         },
       },
       {
@@ -49,14 +49,14 @@ export const createSendHistoryFields = (mediaCollection: string): Field[] => [
       {
         name: 'attachedPdf',
         type: 'relationship',
-        relationTo: mediaCollection,
         admin: { readOnly: true },
+        relationTo: mediaCollection,
       },
       {
         name: 'sentBy',
         type: 'relationship',
-        relationTo: 'users',
         admin: { readOnly: true },
+        relationTo: 'users',
       },
     ],
   },

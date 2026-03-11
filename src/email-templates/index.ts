@@ -1,25 +1,26 @@
 import type { EmailTemplate } from '../types.js'
+
 import { AttachedPdfEmail } from './attached-pdf.js'
 import { LiveDocumentLinkEmail } from './live-document-link.js'
 
 export const attachedPdfEmailTemplate: EmailTemplate = {
   name: 'attached-pdf',
-  label: 'Attached PDF',
+  component: AttachedPdfEmail,
   description:
     'Sends the document as a PDF file attached to the email. Works out of the box — no frontend setup required.',
-  kind: 'attachment',
-  component: AttachedPdfEmail,
   forTypes: ['invoice', 'quote'],
+  kind: 'attachment',
+  label: 'Attached PDF',
 }
 
 export const liveDocumentLinkEmailTemplate: EmailTemplate = {
   name: 'live-document-link',
-  label: 'Live Document Link',
+  component: LiveDocumentLinkEmail,
   description:
     'Sends a link where the client can view the document online and accept or reject it. Requires frontend setup.',
-  kind: 'link',
-  component: LiveDocumentLinkEmail,
   forTypes: ['quote'],
+  kind: 'link',
+  label: 'Live Document Link',
 }
 
 export const builtInEmailTemplates: EmailTemplate[] = [

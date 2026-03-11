@@ -1,14 +1,15 @@
 'use client'
 
+import { useConfig, useDocumentInfo } from '@payloadcms/ui'
 import React, { useEffect, useState } from 'react'
-import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+
 import './RelatedDocument.css'
 
 interface InvoiceDoc {
   id: string
   invoiceNumber?: string
-  status?: string
   issueDate?: string
+  status?: string
 }
 
 export const RelatedInvoices: React.FC = () => {
@@ -17,7 +18,7 @@ export const RelatedInvoices: React.FC = () => {
   const [invoices, setInvoices] = useState<InvoiceDoc[]>([])
 
   useEffect(() => {
-    if (!id || collectionSlug !== 'quotes') return
+    if (!id || collectionSlug !== 'quotes') {return}
 
     let cancelled = false
     const fetchRelated = async () => {
@@ -33,8 +34,8 @@ export const RelatedInvoices: React.FC = () => {
               .map((inv: any) => ({
                 id: inv.id,
                 invoiceNumber: inv.invoiceNumber,
-                status: inv.status,
                 issueDate: inv.issueDate,
+                status: inv.status,
               }))
             setInvoices(resolved)
           }
@@ -44,20 +45,20 @@ export const RelatedInvoices: React.FC = () => {
       }
     }
 
-    fetchRelated()
+    void fetchRelated()
     return () => { cancelled = true }
   }, [id, collectionSlug, config.routes.api])
 
-  if (!id || collectionSlug !== 'quotes' || invoices.length === 0) return null
+  if (!id || collectionSlug !== 'quotes' || invoices.length === 0) {return null}
 
   return (
     <div style={{ marginBottom: 16 }}>
       <div className="related-document__header">Related Invoices</div>
       {invoices.map((inv) => (
         <a
-          key={inv.id}
-          href={`${config.routes.admin}/collections/invoices/${inv.id}`}
           className="related-document__card"
+          href={`${config.routes.admin}/collections/invoices/${inv.id}`}
+          key={inv.id}
         >
           <div className="related-document__title">
             {inv.invoiceNumber || inv.id}

@@ -1,15 +1,17 @@
 import type { Config } from 'payload'
+
 import type { InvoicePdfConfig } from './types.js'
-import { sanitizeConfig } from './defaults.js'
-import { shopInfoGlobal } from './globals/shop-info.js'
+
 import { createInvoicesCollection } from './collections/invoices.js'
 import { createQuotesCollection } from './collections/quotes.js'
-import { createGeneratePdfEndpoint } from './endpoints/generate-pdf.js'
-import { createConvertToInvoiceEndpoint } from './endpoints/convert-to-invoice.js'
-import { createSendEmailEndpoint } from './endpoints/send-email.js'
-import { createEmailConfigEndpoint } from './endpoints/email-config.js'
+import { sanitizeConfig } from './defaults.js'
 import { createAcceptQuoteEndpoint } from './endpoints/accept-quote.js'
+import { createConvertToInvoiceEndpoint } from './endpoints/convert-to-invoice.js'
+import { createEmailConfigEndpoint } from './endpoints/email-config.js'
+import { createGeneratePdfEndpoint } from './endpoints/generate-pdf.js'
 import { createRejectQuoteEndpoint } from './endpoints/reject-quote.js'
+import { createSendEmailEndpoint } from './endpoints/send-email.js'
+import { shopInfoGlobal } from './globals/shop-info.js'
 
 export const invoicePdf =
   (pluginOptions: InvoicePdfConfig) =>
@@ -17,8 +19,8 @@ export const invoicePdf =
     const pluginConfig = sanitizeConfig(pluginOptions)
 
     // Always add collections/globals for schema consistency
-    if (!config.collections) config.collections = []
-    if (!config.globals) config.globals = []
+    if (!config.collections) {config.collections = []}
+    if (!config.globals) {config.globals = []}
 
     config.globals.push(shopInfoGlobal)
 
@@ -35,10 +37,10 @@ export const invoicePdf =
     config.collections.push(invoicesCollection)
     config.collections.push(quotesCollection)
 
-    if (pluginConfig.disabled) return config
+    if (pluginConfig.disabled) {return config}
 
     // Endpoints
-    if (!config.endpoints) config.endpoints = []
+    if (!config.endpoints) {config.endpoints = []}
     config.endpoints.push(createGeneratePdfEndpoint(pluginConfig))
     config.endpoints.push(createConvertToInvoiceEndpoint(pluginConfig))
     config.endpoints.push(createSendEmailEndpoint(pluginConfig))
@@ -61,11 +63,10 @@ export const invoicePdf =
           type: 'tabs',
           tabs: [
             {
-              label: 'Invoice',
               fields: contentFields,
+              label: 'Invoice',
             },
             {
-              label: 'PDF History',
               fields: [
                 {
                   name: 'pdfHistoryView',
@@ -77,10 +78,11 @@ export const invoicePdf =
                   },
                 },
               ],
+              label: 'PDF History',
             },
             {
-              label: 'Send History',
               fields: sendHistoryFields,
+              label: 'Send History',
             },
           ],
         },
@@ -89,40 +91,40 @@ export const invoicePdf =
           name: 'downloadPdf',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#DownloadPdfButton',
             },
+            position: 'sidebar',
           },
         },
         {
           name: 'generatePdf',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#GeneratePdfButton',
             },
+            position: 'sidebar',
           },
         },
         {
           name: 'sendEmail',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#SendEmailButton',
             },
+            position: 'sidebar',
           },
         },
         {
           name: 'relatedQuote',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#RelatedQuote',
             },
+            position: 'sidebar',
           },
         },
       ]
@@ -138,11 +140,10 @@ export const invoicePdf =
           type: 'tabs',
           tabs: [
             {
-              label: 'Quote',
               fields: contentFields,
+              label: 'Quote',
             },
             {
-              label: 'PDF History',
               fields: [
                 {
                   name: 'pdfHistoryView',
@@ -154,10 +155,11 @@ export const invoicePdf =
                   },
                 },
               ],
+              label: 'PDF History',
             },
             {
-              label: 'Send History',
               fields: sendHistoryFields,
+              label: 'Send History',
             },
           ],
         },
@@ -166,50 +168,50 @@ export const invoicePdf =
           name: 'downloadPdf',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#DownloadPdfButton',
             },
+            position: 'sidebar',
           },
         },
         {
           name: 'generatePdf',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#GeneratePdfButton',
             },
+            position: 'sidebar',
           },
         },
         {
           name: 'convertToInvoice',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#ConvertToInvoiceButton',
             },
+            position: 'sidebar',
           },
         },
         {
           name: 'sendEmail',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#SendEmailButton',
             },
+            position: 'sidebar',
           },
         },
         {
           name: 'relatedInvoicesView',
           type: 'ui',
           admin: {
-            position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#RelatedInvoices',
             },
+            position: 'sidebar',
           },
         },
       ]
@@ -218,8 +220,8 @@ export const invoicePdf =
     return config
   }
 
+export { AttachedPdfEmail, builtInEmailTemplates, LiveDocumentLinkEmail } from './email-templates/index.js'
+export { boldTemplate, builtInTemplates, classicTemplate, minimalTemplate, modernTemplate } from './templates/index.js'
+export { BoldTemplate, ClassicTemplate, MinimalTemplate, ModernTemplate } from './templates/index.js'
 // Re-export types and templates for consumers
-export type { InvoicePdfConfig, InvoiceTemplate, InvoiceTemplateProps, EmailTemplate, EmailTemplateProps } from './types.js'
-export { builtInEmailTemplates, AttachedPdfEmail, LiveDocumentLinkEmail } from './email-templates/index.js'
-export { builtInTemplates, classicTemplate, modernTemplate, minimalTemplate, boldTemplate } from './templates/index.js'
-export { ClassicTemplate, ModernTemplate, MinimalTemplate, BoldTemplate } from './templates/index.js'
+export type { EmailTemplate, EmailTemplateProps, InvoicePdfConfig, InvoiceTemplate, InvoiceTemplateProps } from './types.js'

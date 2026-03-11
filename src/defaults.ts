@@ -1,13 +1,14 @@
 import type { InvoicePdfConfig, SanitizedInvoicePdfConfig } from './types.js'
+
 import { builtInEmailTemplates } from './email-templates/index.js'
 
 export const DEFAULTS = {
-  invoiceNumberPrefix: 'INV',
-  quoteNumberPrefix: 'QT',
   currency: '€',
-  defaultTaxRate: 0.2,
   defaultPaymentTerms: 30,
+  defaultTaxRate: 0.2,
+  invoiceNumberPrefix: 'INV',
   mediaCollection: 'media',
+  quoteNumberPrefix: 'QT',
 } as const
 
 export const sanitizeConfig = (config: InvoicePdfConfig): SanitizedInvoicePdfConfig => {
@@ -18,25 +19,25 @@ export const sanitizeConfig = (config: InvoicePdfConfig): SanitizedInvoicePdfCon
   }
 
   return {
-    productCollection: config.productCollection,
-    productFieldMapping: config.productFieldMapping,
-    templates: config.templates,
-    invoiceNumberPrefix: config.invoiceNumberPrefix ?? DEFAULTS.invoiceNumberPrefix,
-    quoteNumberPrefix: config.quoteNumberPrefix ?? DEFAULTS.quoteNumberPrefix,
     currency: config.currency ?? DEFAULTS.currency,
-    defaultTaxRate: config.defaultTaxRate ?? DEFAULTS.defaultTaxRate,
-    defaultPaymentTerms: config.defaultPaymentTerms ?? DEFAULTS.defaultPaymentTerms,
-    mediaCollection: config.mediaCollection ?? DEFAULTS.mediaCollection,
-    disabled: config.disabled ?? false,
     customerCollection: config.customerCollection,
     customerFieldMapping: config.customerFieldMapping,
     customerFilterOptions: config.customerFilterOptions,
-    inlineClientFields: config.inlineClientFields ?? true,
+    defaultPaymentTerms: config.defaultPaymentTerms ?? DEFAULTS.defaultPaymentTerms,
+    defaultTaxRate: config.defaultTaxRate ?? DEFAULTS.defaultTaxRate,
+    disabled: config.disabled ?? false,
     emailTemplates: (() => {
       const consumerTemplates = config.emailTemplates ?? []
       const consumerNames = new Set(consumerTemplates.map(t => t.name))
       const filtered = builtInEmailTemplates.filter(t => !consumerNames.has(t.name))
       return [...filtered, ...consumerTemplates]
     })(),
+    inlineClientFields: config.inlineClientFields ?? true,
+    invoiceNumberPrefix: config.invoiceNumberPrefix ?? DEFAULTS.invoiceNumberPrefix,
+    mediaCollection: config.mediaCollection ?? DEFAULTS.mediaCollection,
+    productCollection: config.productCollection,
+    productFieldMapping: config.productFieldMapping,
+    quoteNumberPrefix: config.quoteNumberPrefix ?? DEFAULTS.quoteNumberPrefix,
+    templates: config.templates,
   }
 }

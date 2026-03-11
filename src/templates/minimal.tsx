@@ -1,50 +1,51 @@
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import React from 'react'
-import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
+
 import type { InvoiceTemplateProps } from '../types.js'
 
 const styles = StyleSheet.create({
-  page: { padding: 50, fontSize: 10, fontFamily: 'Helvetica', color: '#2d2d2d' },
-  header: { marginBottom: 40 },
-  logo: { width: 80, height: 40, objectFit: 'contain', marginBottom: 12 },
-  docTitle: { fontSize: 28, fontWeight: 'bold', color: '#111', letterSpacing: 2 },
-  docNumber: { fontSize: 10, color: '#888', marginTop: 4 },
-  metaSection: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 36 },
-  metaColumn: { width: '30%' },
-  label: { fontSize: 8, color: '#aaa', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
-  value: { fontSize: 10, lineHeight: 1.5 },
   bold: { fontWeight: 'bold' },
-  separator: { borderBottomWidth: 0.5, borderBottomColor: '#e0e0e0', marginVertical: 6 },
-  table: { marginTop: 8 },
-  tableHeader: {
-    flexDirection: 'row',
-    paddingBottom: 6,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ccc',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#f0f0f0',
-  },
   colDesc: { flex: 4 },
-  colQty: { flex: 1, textAlign: 'right' },
   colPrice: { flex: 1.5, textAlign: 'right' },
+  colQty: { flex: 1, textAlign: 'right' },
   colTax: { flex: 1, textAlign: 'right' },
   colTotal: { flex: 1.5, textAlign: 'right' },
-  totalsBlock: { marginTop: 20, alignItems: 'flex-end' },
-  totalRow: { flexDirection: 'row', width: 200, justifyContent: 'space-between', marginBottom: 4 },
+  docNumber: { color: '#888', fontSize: 10, marginTop: 4 },
+  docTitle: { color: '#111', fontSize: 28, fontWeight: 'bold', letterSpacing: 2 },
+  footer: { bottom: 40, color: '#bbb', fontSize: 7, left: 50, position: 'absolute', right: 50 },
   grandTotal: { fontSize: 16, fontWeight: 'bold', marginTop: 8 },
+  header: { marginBottom: 40 },
+  label: { color: '#aaa', fontSize: 8, letterSpacing: 1, marginBottom: 4, textTransform: 'uppercase' },
+  logo: { height: 40, marginBottom: 12, objectFit: 'contain', width: 80 },
+  metaColumn: { width: '30%' },
+  metaSection: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 36 },
   notes: { marginTop: 30 },
-  footer: { position: 'absolute', bottom: 40, left: 50, right: 50, fontSize: 7, color: '#bbb' },
+  page: { color: '#2d2d2d', fontFamily: 'Helvetica', fontSize: 10, padding: 50 },
+  separator: { borderBottomColor: '#e0e0e0', borderBottomWidth: 0.5, marginVertical: 6 },
+  table: { marginTop: 8 },
+  tableHeader: {
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 0.5,
+    flexDirection: 'row',
+    paddingBottom: 6,
+  },
+  tableRow: {
+    borderBottomColor: '#f0f0f0',
+    borderBottomWidth: 0.5,
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4, width: 200 },
+  totalsBlock: { alignItems: 'flex-end', marginTop: 20 },
+  value: { fontSize: 10, lineHeight: 1.5 },
 })
 
 const fmt = (n: number, c: string) => `${c}${n.toFixed(2)}`
 
 export const MinimalTemplate: React.FC<InvoiceTemplateProps> = (props) => {
   const {
-    type, documentNumber, status, issueDate, dueDate, validUntil,
-    company, client, items, subtotal, taxTotal, total, currency, notes,
+    type, client, company, currency, documentNumber, dueDate,
+    issueDate, items, notes, status, subtotal, taxTotal, total, validUntil,
   } = props
 
   const title = type === 'invoice' ? 'Invoice' : 'Quote'

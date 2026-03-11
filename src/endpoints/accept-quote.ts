@@ -1,9 +1,8 @@
 import type { Endpoint } from 'payload'
+
 import { convertQuoteToInvoice } from '../utils/convert-quote-to-invoice.js'
 
 export const createAcceptQuoteEndpoint = (): Endpoint => ({
-  path: '/invoicepdf/quotes/:id/accept',
-  method: 'post',
   handler: async (req) => {
     const id = req.routeParams?.id as string
     if (!id) {
@@ -19,8 +18,8 @@ export const createAcceptQuoteEndpoint = (): Endpoint => ({
 
     try {
       const quote = await req.payload.findByID({
-        collection: 'quotes' as any,
         id,
+        collection: 'quotes' as any,
         depth: 0,
         req,
       })
@@ -32,7 +31,7 @@ export const createAcceptQuoteEndpoint = (): Endpoint => ({
       const quoteData = quote as any
 
       // Check if quote is in a terminal state
-      if (['accepted', 'rejected', 'expired'].includes(quoteData.status)) {
+      if (['accepted', 'expired', 'rejected'].includes(quoteData.status)) {
         return Response.json(
           { error: `Quote already ${quoteData.status}` },
           { status: 409 },
@@ -53,13 +52,15 @@ export const createAcceptQuoteEndpoint = (): Endpoint => ({
       const result = await convertQuoteToInvoice(req, id)
 
       return Response.json({
-        success: true,
-        message: 'Quote accepted',
         invoiceId: result.invoiceId,
+        message: 'Quote accepted',
+        success: true,
       })
     } catch (error) {
-      req.payload.logger.error({ msg: 'Accept quote failed', err: error as Error })
+      req.payload.logger.error({ err: error as Error, msg: 'Accept quote failed' })
       return Response.json({ error: 'Failed to accept quote' }, { status: 500 })
     }
   },
+  method: 'post',
+  path: '/invoicepdf/quotes/:id/accept',
 })

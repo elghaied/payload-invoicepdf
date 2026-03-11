@@ -1,49 +1,50 @@
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import React from 'react'
-import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/renderer'
+
 import type { InvoiceTemplateProps } from '../types.js'
 
 const styles = StyleSheet.create({
-  page: { padding: 40, fontSize: 10, fontFamily: 'Helvetica', color: '#333' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
-  logo: { width: 120, height: 60, objectFit: 'contain' },
-  companyName: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
-  docTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 4, textAlign: 'right' },
-  docNumber: { fontSize: 12, textAlign: 'right', color: '#666' },
-  section: { marginBottom: 16 },
-  row: { flexDirection: 'row', justifyContent: 'space-between' },
   clientBlock: { marginBottom: 20 },
-  label: { fontSize: 8, color: '#999', textTransform: 'uppercase', marginBottom: 2 },
-  table: { marginTop: 10 },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#f5f5f5',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    fontWeight: 'bold',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-  },
   colDesc: { flex: 3 },
-  colQty: { flex: 1, textAlign: 'right' },
   colPrice: { flex: 1, textAlign: 'right' },
+  colQty: { flex: 1, textAlign: 'right' },
   colTax: { flex: 1, textAlign: 'right' },
   colTotal: { flex: 1, textAlign: 'right' },
-  totalsBlock: { alignItems: 'flex-end', marginTop: 16 },
-  totalRow: { flexDirection: 'row', width: 200, justifyContent: 'space-between', marginBottom: 4 },
-  totalLabel: { fontWeight: 'bold' },
-  grandTotal: { fontSize: 14, fontWeight: 'bold', borderTopWidth: 1, borderTopColor: '#333', paddingTop: 4 },
-  footer: { position: 'absolute', bottom: 30, left: 40, right: 40, fontSize: 8, color: '#999' },
-  footerLine: { marginBottom: 2 },
-  notes: { marginTop: 20, padding: 10, backgroundColor: '#fafafa', borderRadius: 4 },
+  companyName: { fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
   datesRow: { flexDirection: 'row', gap: 40, marginBottom: 16 },
-  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 3, fontSize: 9, fontWeight: 'bold' },
+  docNumber: { color: '#666', fontSize: 12, textAlign: 'right' },
+  docTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 4, textAlign: 'right' },
+  footer: { bottom: 30, color: '#999', fontSize: 8, left: 40, position: 'absolute', right: 40 },
+  footerLine: { marginBottom: 2 },
+  grandTotal: { borderTopColor: '#333', borderTopWidth: 1, fontSize: 14, fontWeight: 'bold', paddingTop: 4 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
+  label: { color: '#999', fontSize: 8, marginBottom: 2, textTransform: 'uppercase' },
+  logo: { height: 60, objectFit: 'contain', width: 120 },
+  notes: { backgroundColor: '#fafafa', borderRadius: 4, marginTop: 20, padding: 10 },
+  page: { color: '#333', fontFamily: 'Helvetica', fontSize: 10, padding: 40 },
+  row: { flexDirection: 'row', justifyContent: 'space-between' },
+  section: { marginBottom: 16 },
+  statusBadge: { borderRadius: 3, fontSize: 9, fontWeight: 'bold', paddingHorizontal: 8, paddingVertical: 3 },
+  table: { marginTop: 10 },
+  tableHeader: {
+    backgroundColor: '#f5f5f5',
+    borderBottomColor: '#ddd',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    fontWeight: 'bold',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  tableRow: {
+    borderBottomColor: '#eee',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  totalLabel: { fontWeight: 'bold' },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4, width: 200 },
+  totalsBlock: { alignItems: 'flex-end', marginTop: 16 },
 })
 
 const formatAmount = (amount: number, currency: string) =>
@@ -51,8 +52,8 @@ const formatAmount = (amount: number, currency: string) =>
 
 export const ClassicTemplate: React.FC<InvoiceTemplateProps> = (props) => {
   const {
-    type, documentNumber, status, issueDate, dueDate, validUntil,
-    company, client, items, subtotal, taxTotal, total, currency, notes,
+    type, client, company, currency, documentNumber, dueDate,
+    issueDate, items, notes, status, subtotal, taxTotal, total, validUntil,
   } = props
 
   const title = type === 'invoice' ? 'INVOICE' : 'QUOTE'

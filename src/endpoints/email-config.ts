@@ -1,12 +1,11 @@
 import type { Endpoint } from 'payload'
+
 import type { SanitizedInvoicePdfConfig } from '../types.js'
 
 export const createEmailConfigEndpoint = (
   pluginConfig: SanitizedInvoicePdfConfig,
 ): Endpoint => ({
-  path: '/invoicepdf/email-config',
-  method: 'get',
-  handler: async (req) => {
+  handler: (req) => {
     if (!req.user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -34,9 +33,9 @@ export const createEmailConfigEndpoint = (
       }
       response.templates = templates.map((t) => ({
         name: t.name,
-        label: t.label,
         description: t.description,
         kind: t.kind,
+        label: t.label,
       }))
       response.serverUrlMissing =
         !process.env.NEXT_PUBLIC_SERVER_URL && !process.env.NEXT_PUBLIC_SITE_URL
@@ -44,4 +43,6 @@ export const createEmailConfigEndpoint = (
 
     return Response.json(response)
   },
+  method: 'get',
+  path: '/invoicepdf/email-config',
 })

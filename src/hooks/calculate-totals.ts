@@ -1,10 +1,11 @@
 import type { CollectionBeforeChangeHook } from 'payload'
+
 import type { SanitizedInvoicePdfConfig } from '../types.js'
 
 export const createCalculateTotalsHook =
   (_pluginConfig: SanitizedInvoicePdfConfig): CollectionBeforeChangeHook =>
-  async ({ data }) => {
-    if (!data.items || !Array.isArray(data.items)) return data
+  ({ data }) => {
+    if (!data.items || !Array.isArray(data.items)) {return data}
 
     let subtotal = 0
     let taxTotal = 0

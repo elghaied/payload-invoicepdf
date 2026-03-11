@@ -1,12 +1,12 @@
 import type { Endpoint } from 'payload'
+
 import type { SanitizedInvoicePdfConfig } from '../types.js'
+
 import { convertQuoteToInvoice } from '../utils/convert-quote-to-invoice.js'
 
 export const createConvertToInvoiceEndpoint = (
   _pluginConfig: SanitizedInvoicePdfConfig,
 ): Endpoint => ({
-  path: '/invoicepdf/convert-to-invoice',
-  method: 'post',
   handler: async (req) => {
     if (!req.user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
@@ -22,13 +22,15 @@ export const createConvertToInvoiceEndpoint = (
     try {
       const result = await convertQuoteToInvoice(req, quoteId)
       return Response.json({
-        success: true,
         invoiceId: result.invoiceId,
         message: `Invoice created from quote ${result.quoteNumber}`,
+        success: true,
       })
     } catch (error) {
-      req.payload.logger.error({ msg: 'Convert to invoice failed', err: error as Error })
+      req.payload.logger.error({ err: error as Error, msg: 'Convert to invoice failed' })
       return Response.json({ error: 'Conversion failed' }, { status: 500 })
     }
   },
+  method: 'post',
+  path: '/invoicepdf/convert-to-invoice',
 })

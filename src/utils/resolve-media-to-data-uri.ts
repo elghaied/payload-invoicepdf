@@ -1,6 +1,7 @@
+import type { Payload } from 'payload'
+
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import type { Payload } from 'payload'
 
 const isAbsoluteUrl = (url: string) => url.startsWith('http://') || url.startsWith('https://')
 
@@ -16,12 +17,12 @@ const isAbsoluteUrl = (url: string) => url.startsWith('http://') || url.startsWi
 export const resolveMediaToDataUri = (
   payload: Payload,
   mediaCollectionSlug: string,
-  mediaDoc: Record<string, any> | string | undefined | null,
+  mediaDoc: null | Record<string, any> | string | undefined,
 ): string | undefined => {
-  if (!mediaDoc || typeof mediaDoc !== 'object') return undefined
+  if (!mediaDoc || typeof mediaDoc !== 'object') {return undefined}
 
   const { filename, mimeType, url } = mediaDoc
-  if (!filename && !url) return undefined
+  if (!filename && !url) {return undefined}
 
   // Cloud storage: url is already an absolute URL (e.g. https://s3.amazonaws.com/...)
   if (url && isAbsoluteUrl(url)) {

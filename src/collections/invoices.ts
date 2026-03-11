@@ -1,19 +1,20 @@
 import type { CollectionConfig } from 'payload'
+
 import type { SanitizedInvoicePdfConfig } from '../types.js'
+
+import { createSendHistoryFields } from '../fields/send-history.js'
 import { createAutoFillFromCustomerHook } from '../hooks/auto-fill-from-customer.js'
 import { createAutoFillFromProductHook } from '../hooks/auto-fill-from-product.js'
 import { createAutoNumberHook } from '../hooks/auto-number.js'
-import { createCalculateTotalsHook } from '../hooks/calculate-totals.js'
 import { createCalculateDueDateHook } from '../hooks/calculate-due-date.js'
+import { createCalculateTotalsHook } from '../hooks/calculate-totals.js'
 import { createGeneratePdfHook } from '../hooks/generate-pdf.js'
-import { createSendHistoryFields } from '../fields/send-history.js'
 
 export const createInvoicesCollection = (
   pluginConfig: SanitizedInvoicePdfConfig,
 ): CollectionConfig => ({
   slug: 'invoices',
   admin: {
-    useAsTitle: 'invoiceNumber',
     defaultColumns: [
       'invoiceNumber',
       pluginConfig.inlineClientFields !== false ? 'client.name' : 'client.customer',
@@ -22,34 +23,20 @@ export const createInvoicesCollection = (
       'issueDate',
     ],
     group: 'Invoicing',
-  },
-  hooks: {
-    beforeChange: [
-      ...(pluginConfig.customerCollection && pluginConfig.inlineClientFields
-        ? [createAutoFillFromCustomerHook(pluginConfig)]
-        : []),
-      createAutoFillFromProductHook(pluginConfig),
-      createAutoNumberHook({
-        fieldName: 'invoiceNumber',
-        prefix: pluginConfig.invoiceNumberPrefix,
-        collectionSlug: 'invoices',
-      }),
-      createCalculateTotalsHook(pluginConfig),
-      createCalculateDueDateHook(pluginConfig),
-    ],
-    afterChange: [createGeneratePdfHook(pluginConfig, 'invoice')],
+    useAsTitle: 'invoiceNumber',
   },
   fields: [
     {
       name: 'invoiceNumber',
       type: 'text',
-      unique: true,
+      admin: { position: 'sidebar', readOnly: true },
       index: true,
-      admin: { readOnly: true, position: 'sidebar' },
+      unique: true,
     },
     {
       name: 'status',
       type: 'select',
+      admin: { position: 'sidebar' },
       defaultValue: 'draft',
       options: [
         { label: 'Draft', value: 'draft' },
@@ -58,28 +45,27 @@ export const createInvoicesCollection = (
         { label: 'Overdue', value: 'overdue' },
         { label: 'Cancelled', value: 'cancelled' },
       ],
-      admin: { position: 'sidebar' },
     },
     {
       name: 'template',
       type: 'select',
+      admin: { position: 'sidebar' },
       defaultValue: pluginConfig.templates[0]?.name,
       options: pluginConfig.templates.map((t) => ({
         label: t.name,
         value: t.name,
       })),
-      admin: { position: 'sidebar' },
     },
     {
       name: 'issueDate',
       type: 'date',
-      defaultValue: () => new Date().toISOString(),
       admin: { date: { pickerAppearance: 'dayOnly' } },
+      defaultValue: () => new Date().toISOString(),
     },
     {
       name: 'dueDate',
       type: 'date',
-      admin: { readOnly: true, date: { pickerAppearance: 'dayOnly' } },
+      admin: { date: { pickerAppearance: 'dayOnly' }, readOnly: true },
     },
     {
       name: 'client',
@@ -91,11 +77,11 @@ export const createInvoicesCollection = (
               {
                 name: 'customer',
                 type: 'relationship' as const,
-                relationTo: pluginConfig.customerCollection,
-                required: !pluginConfig.inlineClientFields,
                 admin: {
                   description: 'Select a customer to auto-fill client details',
                 },
+                relationTo: pluginConfig.customerCollection,
+                required: !pluginConfig.inlineClientFields,
                 ...(pluginConfig.customerFilterOptions
                   ? { filterOptions: pluginConfig.customerFilterOptions }
                   : {}),
@@ -106,21 +92,21 @@ export const createInvoicesCollection = (
         ...(pluginConfig.customerCollection && pluginConfig.inlineClientFields
           ? [
               {
-                type: 'ui' as const,
                 name: 'autoFillFromCustomer',
-                label: ' ',
+                type: 'ui' as const,
                 admin: {
                   components: {
                     Field: {
-                      path: 'payload-invoicepdf/client',
-                      exportName: 'CustomerAutoFill',
                       clientProps: {
-                        customerFieldMapping: pluginConfig.customerFieldMapping,
                         customerCollection: pluginConfig.customerCollection,
+                        customerFieldMapping: pluginConfig.customerFieldMapping,
                       },
+                      exportName: 'CustomerAutoFill',
+                      path: 'payload-invoicepdf/client',
                     },
                   },
                 },
+                label: ' ',
               },
             ]
           : []),
@@ -147,52 +133,50 @@ export const createInvoicesCollection = (
     {
       name: 'items',
       type: 'array',
-      minRows: 1,
-      labels: { singular: 'Item', plural: 'Items' },
       fields: [
         {
           name: 'product',
           type: 'relationship',
-          relationTo: pluginConfig.productCollection,
           admin: { description: 'Select a product to auto-fill description and price' },
+          relationTo: pluginConfig.productCollection,
         },
         {
-          type: 'ui',
           name: 'autoFillFromProduct',
-          label: ' ',
+          type: 'ui',
           admin: {
             components: {
               Field: {
-                path: 'payload-invoicepdf/client',
-                exportName: 'ProductAutoFill',
                 clientProps: {
-                  productFieldMapping: pluginConfig.productFieldMapping,
                   productCollection: pluginConfig.productCollection,
+                  productFieldMapping: pluginConfig.productFieldMapping,
                 },
+                exportName: 'ProductAutoFill',
+                path: 'payload-invoicepdf/client',
               },
             },
           },
+          label: ' ',
         },
         {
           name: 'description',
           type: 'text',
-          required: true,
           admin: { description: 'Auto-filled when a product is selected. Changing the product overrides this value.' },
+          required: true,
         },
-        { name: 'quantity', type: 'number', required: true, defaultValue: 1, min: 0 },
+        { name: 'quantity', type: 'number', defaultValue: 1, min: 0, required: true },
         {
           name: 'unitPrice',
           type: 'number',
-          required: true,
-          min: 0,
           admin: { description: 'Auto-filled when a product is selected. Changing the product overrides this value.' },
+          min: 0,
+          required: true,
         },
         {
           name: 'taxRate',
           type: 'number',
           defaultValue: pluginConfig.defaultTaxRate,
-          min: 0,
           max: 1,
+          min: 0,
         },
         {
           name: 'lineTotal',
@@ -200,6 +184,8 @@ export const createInvoicesCollection = (
           admin: { readOnly: true },
         },
       ],
+      labels: { plural: 'Items', singular: 'Item' },
+      minRows: 1,
     },
     { name: 'notes', type: 'textarea' },
     { name: 'subtotal', type: 'number', admin: { readOnly: true } },
@@ -209,15 +195,31 @@ export const createInvoicesCollection = (
     {
       name: 'sourceQuote',
       type: 'relationship',
-      relationTo: 'quotes',
       admin: { hidden: true, position: 'sidebar' },
+      relationTo: 'quotes',
     },
     {
       name: 'generatedPdfs',
       type: 'relationship',
-      relationTo: pluginConfig.mediaCollection,
-      hasMany: true,
       admin: { hidden: true },
+      hasMany: true,
+      relationTo: pluginConfig.mediaCollection,
     },
   ],
+  hooks: {
+    afterChange: [createGeneratePdfHook(pluginConfig, 'invoice')],
+    beforeChange: [
+      ...(pluginConfig.customerCollection && pluginConfig.inlineClientFields
+        ? [createAutoFillFromCustomerHook(pluginConfig)]
+        : []),
+      createAutoFillFromProductHook(pluginConfig),
+      createAutoNumberHook({
+        collectionSlug: 'invoices',
+        fieldName: 'invoiceNumber',
+        prefix: pluginConfig.invoiceNumberPrefix,
+      }),
+      createCalculateTotalsHook(pluginConfig),
+      createCalculateDueDateHook(pluginConfig),
+    ],
+  },
 })

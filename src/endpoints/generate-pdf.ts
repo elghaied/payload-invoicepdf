@@ -1,22 +1,22 @@
 import type { Endpoint } from 'payload'
-import type { SanitizedInvoicePdfConfig, ResolvedClientData } from '../types.js'
+
+import type { ResolvedClientData, SanitizedInvoicePdfConfig } from '../types.js'
+
 import { buildTemplateProps } from '../utils/build-template-props.js'
-import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 import { renderPdfToBuffer } from '../utils/render-pdf.js'
 import { resolveCustomerData } from '../utils/resolve-customer-data.js'
+import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 
 export const createGeneratePdfEndpoint = (
   pluginConfig: SanitizedInvoicePdfConfig,
 ): Endpoint => ({
-  path: '/invoicepdf/generate-pdf',
-  method: 'post',
   handler: async (req) => {
     if (!req.user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await req.json?.()
-    const { type, id } = body || {}
+    const { id, type } = body || {}
 
     if (!type || !id || !['invoice', 'quote'].includes(type)) {
       return Response.json(
@@ -29,8 +29,8 @@ export const createGeneratePdfEndpoint = (
 
     try {
       const doc = await req.payload.findByID({
-        collection: collectionSlug as any,
         id,
+        collection: collectionSlug as any,
         depth: 1,
         req,
       })
@@ -67,8 +67,8 @@ export const createGeneratePdfEndpoint = (
         if (customerId) {
           try {
             const customerDoc = await req.payload.findByID({
-              collection: pluginConfig.customerCollection as any,
               id: customerId,
+              collection: pluginConfig.customerCollection as any,
               depth: 0,
               req,
             })
@@ -89,12 +89,12 @@ export const createGeneratePdfEndpoint = (
       }
 
       const props = buildTemplateProps({
-        doc: doc as any,
-        shopInfo: shopInfo as any,
-        config: pluginConfig,
         type,
+        config: pluginConfig,
+        doc: doc as any,
         logoDataUri,
         resolvedClient,
+        shopInfo: shopInfo as any,
       })
 
       const pdfBuffer = await renderPdfToBuffer(template, props)
@@ -107,9 +107,9 @@ export const createGeneratePdfEndpoint = (
 
       // Upload PDF to media collection and update document pdfUrl
       const file = {
+        name: fileName,
         data: pdfBuffer,
         mimetype: 'application/pdf',
-        name: fileName,
         size: pdfBuffer.length,
       }
 
@@ -125,24 +125,26 @@ export const createGeneratePdfEndpoint = (
         .map((entry: any) => (typeof entry === 'object' ? entry.id : entry))
 
       await req.payload.update({
-        collection: collectionSlug as any,
         id,
-        data: { generatedPdfs: [mediaDoc.id, ...existingPdfs] },
+        collection: collectionSlug as any,
         context: { skipPdfGeneration: true },
+        data: { generatedPdfs: [mediaDoc.id, ...existingPdfs] },
         req,
       })
 
       return new Response(pdfBuffer, {
-        status: 200,
         headers: {
-          'Content-Type': 'application/pdf',
           'Content-Disposition': `attachment; filename="${fileName}"`,
           'Content-Length': String(pdfBuffer.length),
+          'Content-Type': 'application/pdf',
         },
+        status: 200,
       })
     } catch (error) {
-      req.payload.logger.error({ msg: 'PDF generation failed', err: error as Error })
+      req.payload.logger.error({ err: error as Error, msg: 'PDF generation failed' })
       return Response.json({ error: 'PDF generation failed' }, { status: 500 })
     }
   },
+  method: 'post',
+  path: '/invoicepdf/generate-pdf',
 })

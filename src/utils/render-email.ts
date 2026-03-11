@@ -1,4 +1,5 @@
 import React from 'react'
+
 import type { EmailTemplate, EmailTemplateProps } from '../types.js'
 
 export const renderEmailToHtml = async (

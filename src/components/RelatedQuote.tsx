@@ -1,23 +1,24 @@
 'use client'
 
+import { useConfig, useDocumentInfo } from '@payloadcms/ui'
 import React, { useEffect, useState } from 'react'
-import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+
 import './RelatedDocument.css'
 
 interface QuoteDoc {
   id: string
+  issueDate?: string
   quoteNumber?: string
   status?: string
-  issueDate?: string
 }
 
 export const RelatedQuote: React.FC = () => {
   const { id, collectionSlug } = useDocumentInfo()
   const { config } = useConfig()
-  const [quote, setQuote] = useState<QuoteDoc | null>(null)
+  const [quote, setQuote] = useState<null | QuoteDoc>(null)
 
   useEffect(() => {
-    if (!id || collectionSlug !== 'invoices') return
+    if (!id || collectionSlug !== 'invoices') {return}
 
     let cancelled = false
     const fetchRelated = async () => {
@@ -30,9 +31,9 @@ export const RelatedQuote: React.FC = () => {
           if (doc.sourceQuote && typeof doc.sourceQuote === 'object') {
             setQuote({
               id: doc.sourceQuote.id,
+              issueDate: doc.sourceQuote.issueDate,
               quoteNumber: doc.sourceQuote.quoteNumber,
               status: doc.sourceQuote.status,
-              issueDate: doc.sourceQuote.issueDate,
             })
           }
         }
@@ -41,18 +42,18 @@ export const RelatedQuote: React.FC = () => {
       }
     }
 
-    fetchRelated()
+    void fetchRelated()
     return () => { cancelled = true }
   }, [id, collectionSlug, config.routes.api])
 
-  if (!id || collectionSlug !== 'invoices' || !quote) return null
+  if (!id || collectionSlug !== 'invoices' || !quote) {return null}
 
   return (
     <div style={{ marginBottom: 16 }}>
       <div className="related-document__header">Source Quote</div>
       <a
-        href={`${config.routes.admin}/collections/quotes/${quote.id}`}
         className="related-document__card"
+        href={`${config.routes.admin}/collections/quotes/${quote.id}`}
       >
         <div className="related-document__title">
           {quote.quoteNumber || quote.id}

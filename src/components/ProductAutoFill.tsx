@@ -1,17 +1,19 @@
 'use client'
-import React, { useEffect, useRef } from 'react'
+import type React from 'react';
+
 import { useConfig, useField } from '@payloadcms/ui'
+import { useEffect, useRef } from 'react'
 
 type Props = {
   path: string
-  productFieldMapping: { name: string; price: string }
   productCollection: string
+  productFieldMapping: { name: string; price: string }
 }
 
 export const ProductAutoFill: React.FC<Props> = ({
   path,
-  productFieldMapping: mapping,
   productCollection: collection,
+  productFieldMapping: mapping,
 }) => {
   const basePath = path.replace(/\.autoFillFromProduct$/, '')
 
@@ -20,7 +22,7 @@ export const ProductAutoFill: React.FC<Props> = ({
   const { setValue: setUnitPrice } = useField<number>({ path: `${basePath}.unitPrice` })
   const { config } = useConfig()
 
-  const prevProductRef = useRef<string | null>(null)
+  const prevProductRef = useRef<null | string>(null)
   const isInitialMount = useRef(true)
 
   useEffect(() => {
@@ -38,16 +40,16 @@ export const ProductAutoFill: React.FC<Props> = ({
       return
     }
 
-    if (currentId === prevProductRef.current) return
+    if (currentId === prevProductRef.current) {return}
     prevProductRef.current = currentId
 
-    if (!currentId) return
+    if (!currentId) {return}
 
     fetch(`${config.routes.api}/${collection}/${currentId}?depth=0`, {
       credentials: 'include',
     })
       .then((res) => {
-        if (!res.ok) throw new Error('Fetch failed')
+        if (!res.ok) {throw new Error('Fetch failed')}
         return res.json()
       })
       .then((product) => {

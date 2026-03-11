@@ -1,8 +1,9 @@
 'use client'
 
+import { useConfig, useDocumentInfo, useModal } from '@payloadcms/ui'
 import React, { useEffect, useState } from 'react'
-import { useDocumentInfo, useConfig, useModal } from '@payloadcms/ui'
-import { SendEmailDrawer, SEND_EMAIL_DRAWER_SLUG } from './SendEmailDrawer.js'
+
+import { SEND_EMAIL_DRAWER_SLUG, SendEmailDrawer } from './SendEmailDrawer.js'
 import './SidebarButton.css'
 
 interface EmailConfig {
@@ -37,13 +38,13 @@ export const SendEmailButton: React.FC = () => {
         setEmailConfig({ configured: false })
       }
     }
-    fetchConfig()
+    void fetchConfig()
     return () => { cancelled = true }
   }, [config.routes.api])
 
   // Check if document has PDFs
   useEffect(() => {
-    if (!id || !collectionSlug) return
+    if (!id || !collectionSlug) {return}
     let cancelled = false
     const fetchDoc = async () => {
       try {
@@ -58,11 +59,11 @@ export const SendEmailButton: React.FC = () => {
         // silently fail
       }
     }
-    fetchDoc()
+    void fetchDoc()
     return () => { cancelled = true }
   }, [id, collectionSlug, config.routes.api])
 
-  if (!id) return null
+  if (!id) {return null}
 
   const disabled = !emailConfig?.configured || !hasPdfs
   let hint = ''
@@ -76,19 +77,19 @@ export const SendEmailButton: React.FC = () => {
     <div className="sidebar-button">
       {hint && <p className="sidebar-button__hint">{hint}</p>}
       <button
-        type="button"
-        onClick={() => openModal(SEND_EMAIL_DRAWER_SLUG)}
-        disabled={disabled}
         className="sidebar-button__btn sidebar-button__btn--send"
+        disabled={disabled}
+        onClick={() => openModal(SEND_EMAIL_DRAWER_SLUG)}
+        type="button"
       >
         {label}
       </button>
       {/* Drawer is always mounted — Payload's modal system controls visibility */}
       {emailConfig?.configured && (
         <SendEmailDrawer
-          type={type}
           documentId={id as string}
           emailConfig={emailConfig}
+          type={type}
         />
       )}
     </div>

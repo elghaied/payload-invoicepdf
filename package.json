@@ -70,7 +70,7 @@
     "lint:fix": "eslint ./src --fix",
     "test": "pnpm test:int && pnpm test:e2e",
     "test:e2e": "playwright test",
-    "test:int": "vitest --run"
+    "test:int": "cross-env NODE_ENV=test vitest --run"
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",

@@ -1,28 +1,31 @@
 'use client'
-import React, { useEffect, useRef } from 'react'
+import type React from 'react';
+
 import { useConfig, useField } from '@payloadcms/ui'
+import { useEffect, useRef } from 'react'
+
 import { resolveCustomerData } from '../utils/resolve-customer-data.js'
 
 type Props = {
-  path: string
-  customerFieldMapping: {
-    name: string | string[]
-    email?: string
-    vatNumber?: string
-    address?: {
-      street?: string
-      city?: string
-      postalCode?: string
-      country?: string
-    }
-  }
   customerCollection: string
+  customerFieldMapping: {
+    address?: {
+      city?: string
+      country?: string
+      postalCode?: string
+      street?: string
+    }
+    email?: string
+    name: string | string[]
+    vatNumber?: string
+  }
+  path: string
 }
 
 export const CustomerAutoFill: React.FC<Props> = ({
-  path,
-  customerFieldMapping: mapping,
   customerCollection: collection,
+  customerFieldMapping: mapping,
+  path,
 }) => {
   const basePath = path.replace(/\.autoFillFromCustomer$/, '')
 
@@ -36,7 +39,7 @@ export const CustomerAutoFill: React.FC<Props> = ({
   const { setValue: setCountry } = useField<string>({ path: `${basePath}.address.country` })
   const { config } = useConfig()
 
-  const prevCustomerRef = useRef<string | null>(null)
+  const prevCustomerRef = useRef<null | string>(null)
   const isInitialMount = useRef(true)
 
   useEffect(() => {
@@ -54,28 +57,28 @@ export const CustomerAutoFill: React.FC<Props> = ({
       return
     }
 
-    if (currentId === prevCustomerRef.current) return
+    if (currentId === prevCustomerRef.current) {return}
     prevCustomerRef.current = currentId
 
-    if (!currentId) return
+    if (!currentId) {return}
 
     fetch(`${config.routes.api}/${collection}/${currentId}?depth=0`, {
       credentials: 'include',
     })
       .then((res) => {
-        if (!res.ok) throw new Error('Fetch failed')
+        if (!res.ok) {throw new Error('Fetch failed')}
         return res.json()
       })
       .then((customer) => {
         const resolved = resolveCustomerData(customer, mapping)
-        if (resolved.name) setName(resolved.name)
-        if (resolved.email != null) setEmail(resolved.email)
-        if (resolved.vatNumber != null) setVatNumber(resolved.vatNumber)
+        if (resolved.name) {setName(resolved.name)}
+        if (resolved.email != null) {setEmail(resolved.email)}
+        if (resolved.vatNumber != null) {setVatNumber(resolved.vatNumber)}
         if (resolved.address) {
-          if (resolved.address.street != null) setStreet(resolved.address.street)
-          if (resolved.address.city != null) setCity(resolved.address.city)
-          if (resolved.address.postalCode != null) setPostalCode(resolved.address.postalCode)
-          if (resolved.address.country != null) setCountry(resolved.address.country)
+          if (resolved.address.street != null) {setStreet(resolved.address.street)}
+          if (resolved.address.city != null) {setCity(resolved.address.city)}
+          if (resolved.address.postalCode != null) {setPostalCode(resolved.address.postalCode)}
+          if (resolved.address.country != null) {setCountry(resolved.address.country)}
         }
       })
       .catch(() => {

@@ -7,26 +7,32 @@ export const buildEmailTemplateProps = (args: {
   type: 'invoice' | 'quote'
   viewUrl?: string
 }): EmailTemplateProps => {
-  const { doc, serverUrl, shopInfo, type, viewUrl } = args
+  const { type, doc, serverUrl, shopInfo, viewUrl } = args
 
   return {
     type,
-    documentNumber: type === 'invoice' ? doc.invoiceNumber : doc.quoteNumber,
-    viewUrl,
     client: {
       name: doc.client?.name || '',
-      email: doc.client?.email || undefined,
       address: doc.client?.address
         ? {
-            street: doc.client.address.street || undefined,
             city: doc.client.address.city || undefined,
-            postalCode: doc.client.address.postalCode || undefined,
             country: doc.client.address.country || undefined,
+            postalCode: doc.client.address.postalCode || undefined,
+            street: doc.client.address.street || undefined,
           }
         : undefined,
+      email: doc.client?.email || undefined,
     },
     company: {
       name: shopInfo.companyName || '',
+      address: {
+        city: shopInfo.address?.city || undefined,
+        country: shopInfo.address?.country || undefined,
+        postalCode: shopInfo.address?.postalCode || undefined,
+        street: shopInfo.address?.street || undefined,
+      },
+      email: shopInfo.email || undefined,
+      legalMentions: shopInfo.legalMentions || undefined,
       logo: shopInfo.companyLogo?.url
         ? shopInfo.companyLogo.url.startsWith('http')
           ? shopInfo.companyLogo.url
@@ -34,16 +40,10 @@ export const buildEmailTemplateProps = (args: {
             ? `${serverUrl}${shopInfo.companyLogo.url}`
             : shopInfo.companyLogo.url
         : undefined,
-      email: shopInfo.email || undefined,
       phone: shopInfo.phone || undefined,
       website: shopInfo.website || undefined,
-      address: {
-        street: shopInfo.address?.street || undefined,
-        city: shopInfo.address?.city || undefined,
-        postalCode: shopInfo.address?.postalCode || undefined,
-        country: shopInfo.address?.country || undefined,
-      },
-      legalMentions: shopInfo.legalMentions || undefined,
     },
+    documentNumber: type === 'invoice' ? doc.invoiceNumber : doc.quoteNumber,
+    viewUrl,
   }
 }

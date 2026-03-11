@@ -1,8 +1,6 @@
 import type { Endpoint } from 'payload'
 
 export const createRejectQuoteEndpoint = (): Endpoint => ({
-  path: '/invoicepdf/quotes/:id/reject',
-  method: 'post',
   handler: async (req) => {
     const id = req.routeParams?.id as string
     if (!id) {
@@ -10,7 +8,7 @@ export const createRejectQuoteEndpoint = (): Endpoint => ({
     }
 
     const body = await req.json?.()
-    const { token, reason } = body || {}
+    const { reason, token } = body || {}
 
     if (!token) {
       return Response.json({ error: 'Token is required' }, { status: 400 })
@@ -18,8 +16,8 @@ export const createRejectQuoteEndpoint = (): Endpoint => ({
 
     try {
       const quote = await req.payload.findByID({
-        collection: 'quotes' as any,
         id,
+        collection: 'quotes' as any,
         depth: 0,
         req,
       })
@@ -31,7 +29,7 @@ export const createRejectQuoteEndpoint = (): Endpoint => ({
       const quoteData = quote as any
 
       // Check if quote is in a terminal state
-      if (['accepted', 'rejected', 'expired'].includes(quoteData.status)) {
+      if (['accepted', 'expired', 'rejected'].includes(quoteData.status)) {
         return Response.json(
           { error: `Quote already ${quoteData.status}` },
           { status: 409 },
@@ -56,17 +54,19 @@ export const createRejectQuoteEndpoint = (): Endpoint => ({
       }
 
       await req.payload.update({
-        collection: 'quotes' as any,
         id,
-        data: updateData,
+        collection: 'quotes' as any,
         context: { skipPdfGeneration: true },
+        data: updateData,
         req,
       })
 
-      return Response.json({ success: true, message: 'Quote rejected' })
+      return Response.json({ message: 'Quote rejected', success: true })
     } catch (error) {
-      req.payload.logger.error({ msg: 'Reject quote failed', err: error as Error })
+      req.payload.logger.error({ err: error as Error, msg: 'Reject quote failed' })
       return Response.json({ error: 'Failed to reject quote' }, { status: 500 })
     }
   },
+  method: 'post',
+  path: '/invoicepdf/quotes/:id/reject',
 })

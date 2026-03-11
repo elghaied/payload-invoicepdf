@@ -2,13 +2,12 @@ import type { GlobalConfig } from 'payload'
 
 export const shopInfoGlobal: GlobalConfig = {
   slug: 'shop-info',
-  label: 'Shop Info',
   admin: {
     group: 'Invoicing',
   },
   fields: [
-    { name: 'companyName', type: 'text', required: true, label: 'Company Name' },
-    { name: 'companyLogo', type: 'upload', relationTo: 'media', label: 'Company Logo' },
+    { name: 'companyName', type: 'text', label: 'Company Name', required: true },
+    { name: 'companyLogo', type: 'upload', label: 'Company Logo', relationTo: 'media' },
     {
       name: 'address',
       type: 'group',
@@ -31,8 +30,9 @@ export const shopInfoGlobal: GlobalConfig = {
     {
       name: 'defaultPaymentTerms',
       type: 'number',
-      label: 'Default Payment Terms (days)',
       defaultValue: 30,
+      label: 'Default Payment Terms (days)',
     },
   ],
+  label: 'Shop Info',
 }

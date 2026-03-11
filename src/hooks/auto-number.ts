@@ -1,30 +1,30 @@
 import type { CollectionBeforeChangeHook } from 'payload'
 
 interface AutoNumberOptions {
+  collectionSlug: string
   fieldName: string
   prefix: string
-  collectionSlug: string
 }
 
 export const createAutoNumberHook =
   (options: AutoNumberOptions): CollectionBeforeChangeHook =>
   async ({ data, operation, req }) => {
-    if (operation !== 'create') return data
+    if (operation !== 'create') {return data}
 
-    const { fieldName, prefix, collectionSlug } = options
+    const { collectionSlug, fieldName, prefix } = options
     const year = new Date().getFullYear()
     const searchPrefix = `${prefix}-${year}-`
 
     // Find the latest document number for this year
     const latest = await req.payload.find({
       collection: collectionSlug as any,
+      depth: 0,
+      limit: 1,
+      req,
+      sort: `-${fieldName}`,
       where: {
         [fieldName]: { contains: searchPrefix },
       },
-      sort: `-${fieldName}`,
-      limit: 1,
-      depth: 0,
-      req,
     })
 
     let nextNumber = 1

@@ -1,33 +1,34 @@
 'use client'
 
+import { useConfig, useDocumentInfo } from '@payloadcms/ui'
 import React, { useCallback, useEffect, useState } from 'react'
-import { useDocumentInfo, useConfig } from '@payloadcms/ui'
+
 import './PdfHistory.css'
 
 interface MediaDoc {
-  id: string
-  filename: string
-  url: string
-  filesize: number
   createdAt: string
+  filename: string
+  filesize: number
+  id: string
   mimeType: string
+  url: string
 }
 
 const formatDate = (dateStr: string) => {
   const date = new Date(dateStr)
   return date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    month: 'short',
+    year: 'numeric',
   })
 }
 
 const formatSize = (bytes: number) => {
-  if (!bytes) return ''
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  if (!bytes) {return ''}
+  if (bytes < 1024) {return `${bytes} B`}
+  if (bytes < 1024 * 1024) {return `${(bytes / 1024).toFixed(1)} KB`}
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
@@ -41,7 +42,7 @@ export const PdfHistory: React.FC = () => {
   const apiRoute = config.routes.api
 
   const fetchPdfs = useCallback(async () => {
-    if (!id || !collectionSlug) return
+    if (!id || !collectionSlug) {return}
     setLoading(true)
     try {
       const res = await fetch(`${apiRoute}/${collectionSlug}/${id}?depth=1`, {
@@ -60,18 +61,18 @@ export const PdfHistory: React.FC = () => {
   }, [id, collectionSlug, apiRoute])
 
   useEffect(() => {
-    fetchPdfs()
+    void fetchPdfs()
   }, [fetchPdfs])
 
   const handleDelete = useCallback(
     async (mediaId: string) => {
-      if (!id || !collectionSlug) return
-      if (!window.confirm('Delete this PDF?')) return
+      if (!id || !collectionSlug) {return}
+      if (!window.confirm('Delete this PDF?')) {return}
 
       try {
         await fetch(`${apiRoute}/media/${mediaId}`, {
-          method: 'DELETE',
           credentials: 'include',
+          method: 'DELETE',
         })
 
         const updatedIds = mediaDocs
@@ -79,10 +80,10 @@ export const PdfHistory: React.FC = () => {
           .map((doc) => doc.id)
 
         await fetch(`${apiRoute}/${collectionSlug}/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({ generatedPdfs: updatedIds }),
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          method: 'PATCH',
         })
 
         setMediaDocs((prev) => prev.filter((doc) => doc.id !== mediaId))
@@ -93,7 +94,7 @@ export const PdfHistory: React.FC = () => {
     [id, collectionSlug, mediaDocs, apiRoute],
   )
 
-  if (!id) return null
+  if (!id) {return null}
 
   return (
     <div className="pdf-history">
@@ -114,7 +115,7 @@ export const PdfHistory: React.FC = () => {
           {mediaDocs.map((doc, index) => {
             const fullUrl = doc.url?.startsWith('http') ? doc.url : `${serverUrl}${doc.url}`
             return (
-              <div key={doc.id} className="pdf-history__item">
+              <div className="pdf-history__item" key={doc.id}>
                 <div className="pdf-history__icon">PDF</div>
                 <div className="pdf-history__info">
                   <div className="pdf-history__name-row">
@@ -132,17 +133,17 @@ export const PdfHistory: React.FC = () => {
                 </div>
                 <div className="pdf-history__actions">
                   <a
-                    href={fullUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="pdf-history__download"
+                    href={fullUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
                     Download
                   </a>
                   <button
-                    type="button"
-                    onClick={() => handleDelete(doc.id)}
                     className="pdf-history__delete"
+                    onClick={() => handleDelete(doc.id)}
+                    type="button"
                   >
                     Delete
                   </button>
