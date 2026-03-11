@@ -3,6 +3,7 @@ import type { SanitizedInvoicePdfConfig } from '../types.js'
 import { buildTemplateProps } from '../utils/build-template-props.js'
 import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 import { renderPdfToBuffer } from '../utils/render-pdf.js'
+import { resolveCustomerData } from '../utils/resolve-customer-data.js'
 
 export const createGeneratePdfEndpoint = (
   pluginConfig: SanitizedInvoicePdfConfig,
@@ -57,12 +58,33 @@ export const createGeneratePdfEndpoint = (
         (shopInfo as any).companyLogo,
       )
 
+      // In reference mode, resolve client data from the customer relationship
+      let resolvedClient: Record<string, any> | undefined
+      if (!pluginConfig.inlineClientFields && pluginConfig.customerCollection && pluginConfig.customerFieldMapping) {
+        const customerId = typeof (doc as any).client?.customer === 'object'
+          ? (doc as any).client.customer.id
+          : (doc as any).client?.customer
+        if (customerId) {
+          const customerDoc = await req.payload.findByID({
+            collection: pluginConfig.customerCollection as any,
+            id: customerId,
+            depth: 0,
+            req,
+          })
+          resolvedClient = resolveCustomerData(
+            customerDoc as Record<string, any>,
+            pluginConfig.customerFieldMapping,
+          )
+        }
+      }
+
       const props = buildTemplateProps({
         doc: doc as any,
         shopInfo: shopInfo as any,
         config: pluginConfig,
         type,
         logoDataUri,
+        resolvedClient,
       })
 
       const pdfBuffer = await renderPdfToBuffer(template, props)

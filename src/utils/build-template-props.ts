@@ -6,8 +6,14 @@ export const buildTemplateProps = (args: {
   config: SanitizedInvoicePdfConfig
   type: 'invoice' | 'quote'
   logoDataUri?: string
+  resolvedClient?: {
+    name: string
+    email?: string
+    vatNumber?: string
+    address?: { street?: string; city?: string; postalCode?: string; country?: string }
+  }
 }): InvoiceTemplateProps => {
-  const { doc, shopInfo, config, type, logoDataUri } = args
+  const { doc, shopInfo, config, type, logoDataUri, resolvedClient } = args
 
   return {
     type,
@@ -37,19 +43,33 @@ export const buildTemplateProps = (args: {
       legalMentions: shopInfo.legalMentions || undefined,
     },
 
-    client: {
-      name: doc.client?.name || '',
-      email: doc.client?.email || undefined,
-      address: doc.client?.address
-        ? {
-            street: doc.client.address.street || '',
-            city: doc.client.address.city || '',
-            postalCode: doc.client.address.postalCode || '',
-            country: doc.client.address.country || '',
-          }
-        : undefined,
-      vatNumber: doc.client?.vatNumber || undefined,
-    },
+    client: resolvedClient
+      ? {
+          name: resolvedClient.name,
+          email: resolvedClient.email || undefined,
+          address: resolvedClient.address
+            ? {
+                street: resolvedClient.address.street || '',
+                city: resolvedClient.address.city || '',
+                postalCode: resolvedClient.address.postalCode || '',
+                country: resolvedClient.address.country || '',
+              }
+            : undefined,
+          vatNumber: resolvedClient.vatNumber || undefined,
+        }
+      : {
+          name: doc.client?.name || '',
+          email: doc.client?.email || undefined,
+          address: doc.client?.address
+            ? {
+                street: doc.client.address.street || '',
+                city: doc.client.address.city || '',
+                postalCode: doc.client.address.postalCode || '',
+                country: doc.client.address.country || '',
+              }
+            : undefined,
+          vatNumber: doc.client?.vatNumber || undefined,
+        },
 
     items: (doc.items || []).map((item: any) => ({
       description: item.description || '',

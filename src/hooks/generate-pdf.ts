@@ -3,6 +3,7 @@ import type { SanitizedInvoicePdfConfig } from '../types.js'
 import { buildTemplateProps } from '../utils/build-template-props.js'
 import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 import { renderPdfToBuffer } from '../utils/render-pdf.js'
+import { resolveCustomerData } from '../utils/resolve-customer-data.js'
 
 export const createGeneratePdfHook =
   (
@@ -37,12 +38,43 @@ export const createGeneratePdfHook =
         (shopInfo as any).companyLogo,
       )
 
+      // In reference mode, resolve client data from the customer relationship
+      let resolvedClient: Record<string, any> | undefined
+      if (!pluginConfig.inlineClientFields && pluginConfig.customerCollection && pluginConfig.customerFieldMapping) {
+        const customerId = typeof doc.client?.customer === 'object'
+          ? doc.client.customer.id
+          : doc.client?.customer
+        if (customerId) {
+          try {
+            const customerDoc = await req.payload.findByID({
+              collection: pluginConfig.customerCollection as any,
+              id: customerId,
+              depth: 0,
+              req,
+            })
+            resolvedClient = resolveCustomerData(
+              customerDoc as Record<string, any>,
+              pluginConfig.customerFieldMapping,
+            )
+          } catch {
+            req.payload.logger.error(
+              `Failed to fetch customer ${customerId} for PDF generation`,
+            )
+          }
+        } else {
+          req.payload.logger.warn(
+            `Reference mode: no customer selected for ${type} ${doc.id}, PDF will have empty client data`,
+          )
+        }
+      }
+
       const props = buildTemplateProps({
         doc,
         shopInfo: shopInfo as any,
         config: pluginConfig,
         type,
         logoDataUri,
+        resolvedClient,
       })
 
       const pdfBuffer = await renderPdfToBuffer(template, props)
