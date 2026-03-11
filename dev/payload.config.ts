@@ -9,7 +9,8 @@ import { corporateTemplate } from './templates/corporate.js'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
-import { testEmailAdapter } from './helpers/testEmailAdapter.js'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import nodemailer from 'nodemailer'
 import { seed } from './seed.js'
 
 const filename = fileURLToPath(import.meta.url)
@@ -80,7 +81,18 @@ const buildConfigWithMemoryDB = async () => {
       url: process.env.DATABASE_URL || '',
     }),
     editor: lexicalEditor(),
-    email: testEmailAdapter,
+    email: nodemailerAdapter({
+      defaultFromAddress: process.env.SMTP_FROM || 'dev@payloadcms.com',
+      defaultFromName: process.env.SMTP_FROM_NAME || 'Payload Test',
+      transport: nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      }),
+    }),
     onInit: async (payload) => {
       await seed(payload)
     },

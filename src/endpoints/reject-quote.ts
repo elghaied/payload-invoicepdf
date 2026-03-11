@@ -38,8 +38,9 @@ export const createRejectQuoteEndpoint = (): Endpoint => ({
         )
       }
 
-      // Verify token
-      if (token !== quoteData.rejectToken) {
+      // Verify token — accept either the reject token or accept token
+      // (the accept page cross-links to reject using the accept token)
+      if (token !== quoteData.rejectToken && token !== quoteData.acceptToken) {
         return Response.json({ error: 'Invalid token' }, { status: 401 })
       }
 
