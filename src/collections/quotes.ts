@@ -199,6 +199,12 @@ export const createQuotesCollection = (
     { name: 'subtotal', type: 'number', admin: { readOnly: true } },
     { name: 'taxTotal', type: 'number', admin: { readOnly: true } },
     { name: 'total', type: 'number', admin: { readOnly: true } },
-    { name: 'pdfUrl', type: 'text', admin: { readOnly: true, position: 'sidebar' } },
+    {
+      name: 'generatedPdfs',
+      type: 'relationship',
+      relationTo: pluginConfig.mediaCollection,
+      hasMany: true,
+      admin: { readOnly: true, position: 'sidebar' },
+    },
   ],
 })

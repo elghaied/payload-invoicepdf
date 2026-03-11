@@ -11,7 +11,7 @@ export const createGeneratePdfHook =
     type: 'invoice' | 'quote',
   ): CollectionAfterChangeHook =>
   async ({ doc, req, context }) => {
-    // Prevent infinite loop when we update pdfUrl
+    // Prevent infinite loop when we update generatedPdfs
     if (context.skipPdfGeneration) return doc
 
     // Skip PDF generation for drafts to avoid unnecessary overhead
@@ -98,18 +98,19 @@ export const createGeneratePdfHook =
         req,
       })
 
-      const pdfUrl = (mediaDoc as any).url || `/api/${pluginConfig.mediaCollection}/file/${fileName}`
+      // Prepend new media doc to generatedPdfs array
+      const existingPdfs = (Array.isArray(doc.generatedPdfs) ? doc.generatedPdfs : [])
+        .map((entry: any) => (typeof entry === 'object' ? entry.id : entry))
 
-      // Update the document with the PDF URL (skip hook to prevent loop)
       await req.payload.update({
         collection: collectionSlug as any,
         id: doc.id,
-        data: { pdfUrl },
+        data: { generatedPdfs: [mediaDoc.id, ...existingPdfs] },
         context: { skipPdfGeneration: true },
         req,
       })
 
-      doc.pdfUrl = pdfUrl
+      doc.generatedPdfs = [mediaDoc.id, ...existingPdfs]
     } catch (error) {
       req.payload.logger.error({
         msg: `Failed to generate PDF for ${type} ${doc.id}`,

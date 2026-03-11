@@ -120,12 +120,14 @@ export const createGeneratePdfEndpoint = (
         req,
       })
 
-      const pdfUrl = (mediaDoc as any).url || `/api/${pluginConfig.mediaCollection}/file/${fileName}`
+      // Prepend new media doc to generatedPdfs array
+      const existingPdfs = (Array.isArray((doc as any).generatedPdfs) ? (doc as any).generatedPdfs : [])
+        .map((entry: any) => (typeof entry === 'object' ? entry.id : entry))
 
       await req.payload.update({
         collection: collectionSlug as any,
         id,
-        data: { pdfUrl },
+        data: { generatedPdfs: [mediaDoc.id, ...existingPdfs] },
         context: { skipPdfGeneration: true },
         req,
       })
