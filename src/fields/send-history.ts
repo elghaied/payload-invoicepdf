@@ -6,7 +6,6 @@ export const createSendHistoryFields = (mediaCollection: string): Field[] => [
     type: 'date',
     admin: {
       readOnly: true,
-      position: 'sidebar',
       date: { pickerAppearance: 'dayAndTime' },
     },
   },
@@ -15,7 +14,6 @@ export const createSendHistoryFields = (mediaCollection: string): Field[] => [
     type: 'array',
     admin: {
       readOnly: true,
-      position: 'sidebar',
       initCollapsed: true,
       components: {
         RowLabel: {

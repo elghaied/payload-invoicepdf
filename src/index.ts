@@ -48,11 +48,14 @@ export const invoicePdf =
 
     // Admin components — tabbed UI + sidebar buttons
     const isSidebarField = (f: any) => 'admin' in f && f.admin?.position === 'sidebar'
+    const SEND_HISTORY_FIELDS = new Set(['lastSentAt', 'sendHistory'])
+    const isSendHistoryField = (f: any) => 'name' in f && SEND_HISTORY_FIELDS.has(f.name)
 
     const invoiceCol = config.collections.find((c) => c.slug === 'invoices')
     if (invoiceCol) {
       const sidebarFields = invoiceCol.fields.filter(isSidebarField)
-      const contentFields = invoiceCol.fields.filter((f) => !isSidebarField(f))
+      const sendHistoryFields = invoiceCol.fields.filter((f) => isSendHistoryField(f))
+      const contentFields = invoiceCol.fields.filter((f) => !isSidebarField(f) && !isSendHistoryField(f))
       invoiceCol.fields = [
         {
           type: 'tabs',
@@ -74,6 +77,10 @@ export const invoicePdf =
                   },
                 },
               ],
+            },
+            {
+              label: 'Send History',
+              fields: sendHistoryFields,
             },
           ],
         },
@@ -124,7 +131,8 @@ export const invoicePdf =
     const quotesCol = config.collections.find((c) => c.slug === 'quotes')
     if (quotesCol) {
       const sidebarFields = quotesCol.fields.filter(isSidebarField)
-      const contentFields = quotesCol.fields.filter((f) => !isSidebarField(f))
+      const sendHistoryFields = quotesCol.fields.filter((f) => isSendHistoryField(f))
+      const contentFields = quotesCol.fields.filter((f) => !isSidebarField(f) && !isSendHistoryField(f))
       quotesCol.fields = [
         {
           type: 'tabs',
@@ -146,6 +154,10 @@ export const invoicePdf =
                   },
                 },
               ],
+            },
+            {
+              label: 'Send History',
+              fields: sendHistoryFields,
             },
           ],
         },
