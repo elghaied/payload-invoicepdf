@@ -62,6 +62,48 @@ export const seed = async (payload: Payload) => {
     }
   }
 
+  // Seed customers
+  const { totalDocs: customerCount } = await payload.count({
+    collection: 'customers' as any,
+  })
+
+  let customerIds: string[] = []
+  if (!customerCount) {
+    const customers = [
+      {
+        companyName: 'TechStart SAS',
+        email: 'finance@techstart.fr',
+        vatNumber: 'FR98765432101',
+        address: { street: '45 Rue de la République', city: 'Lyon', postalCode: '69002', country: 'France' },
+      },
+      {
+        companyName: 'GreenLeaf SARL',
+        email: 'comptabilite@greenleaf.fr',
+        address: { street: '12 Avenue des Champs', city: 'Bordeaux', postalCode: '33000', country: 'France' },
+      },
+      {
+        companyName: 'DataFlow Inc.',
+        email: 'ap@dataflow.com',
+        vatNumber: 'FR55667788990',
+        address: { street: '78 Tech Park Boulevard', city: 'Toulouse', postalCode: '31000', country: 'France' },
+      },
+    ]
+
+    for (const customer of customers) {
+      const doc = await payload.create({
+        collection: 'customers' as any,
+        data: customer,
+      })
+      customerIds.push(doc.id)
+    }
+  } else {
+    const { docs: existingCustomers } = await payload.find({
+      collection: 'customers' as any,
+      limit: 10,
+    })
+    customerIds = existingCustomers.map((c: any) => c.id)
+  }
+
   // Seed sample invoices
   const { totalDocs: invoiceCount } = await payload.count({
     collection: 'invoices' as any,
@@ -75,6 +117,7 @@ export const seed = async (payload: Payload) => {
         template: 'Classic',
         issueDate: new Date().toISOString(),
         client: {
+          customer: customerIds[0],
           name: 'TechStart SAS',
           email: 'finance@techstart.fr',
           address: {
@@ -100,6 +143,7 @@ export const seed = async (payload: Payload) => {
         template: 'Modern',
         issueDate: new Date().toISOString(),
         client: {
+          customer: customerIds[1],
           name: 'GreenLeaf SARL',
           email: 'comptabilite@greenleaf.fr',
           address: {
@@ -123,6 +167,7 @@ export const seed = async (payload: Payload) => {
         template: 'Bold',
         issueDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
         client: {
+          customer: customerIds[2],
           name: 'DataFlow Inc.',
           email: 'ap@dataflow.com',
           address: {

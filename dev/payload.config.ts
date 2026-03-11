@@ -55,6 +55,25 @@ const buildConfigWithMemoryDB = async () => {
           staticDir: path.resolve(dirname, 'media'),
         },
       },
+      {
+        slug: 'customers',
+        admin: { useAsTitle: 'companyName' },
+        fields: [
+          { name: 'companyName', type: 'text', required: true },
+          { name: 'email', type: 'email' },
+          { name: 'vatNumber', type: 'text', label: 'VAT Number' },
+          {
+            name: 'address',
+            type: 'group',
+            fields: [
+              { name: 'street', type: 'text' },
+              { name: 'city', type: 'text' },
+              { name: 'postalCode', type: 'text' },
+              { name: 'country', type: 'text' },
+            ],
+          },
+        ],
+      },
     ],
     db: mongooseAdapter({
       ensureIndexes: true,
@@ -73,6 +92,18 @@ const buildConfigWithMemoryDB = async () => {
           price: 'price',
           ref: 'sku',
           description: 'description',
+        },
+        customerCollection: 'customers',
+        customerFieldMapping: {
+          name: 'companyName',
+          email: 'email',
+          vatNumber: 'vatNumber',
+          address: {
+            street: 'address.street',
+            city: 'address.city',
+            postalCode: 'address.postalCode',
+            country: 'address.country',
+          },
         },
         templates: [...builtInTemplates, corporateTemplate],
       }),
