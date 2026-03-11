@@ -1,9 +1,33 @@
 {
   "name": "payload-invoicepdf",
   "version": "1.0.0",
-  "description": "A blank template to get started with Payload 3.0",
+  "description": "Payload CMS 3.x plugin for invoice and quote management with PDF generation, email sending, quote acceptance workflows, and a rich admin UI",
   "license": "MIT",
   "type": "module",
+  "keywords": [
+    "payload",
+    "payload-cms",
+    "payload-plugin",
+    "invoice",
+    "quote",
+    "pdf",
+    "pdf-generation",
+    "react-pdf",
+    "email",
+    "billing",
+    "accounting",
+    "admin",
+    "cms"
+  ],
+  "homepage": "https://github.com/elghaied/payload-invoicepdf#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elghaied/payload-invoicepdf.git"
+  },
+  "bugs": {
+    "url": "https://github.com/elghaied/payload-invoicepdf/issues"
+  },
+  "author": "elghaied",
   "packageManager": "pnpm@10.30.1",
   "exports": {
     ".": {
