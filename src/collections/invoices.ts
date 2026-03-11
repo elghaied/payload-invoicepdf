@@ -13,7 +13,13 @@ export const createInvoicesCollection = (
   slug: 'invoices',
   admin: {
     useAsTitle: 'invoiceNumber',
-    defaultColumns: ['invoiceNumber', 'client.name', 'status', 'total', 'issueDate'],
+    defaultColumns: [
+      'invoiceNumber',
+      pluginConfig.inlineClientFields !== false ? 'client.name' : 'client.customer',
+      'status',
+      'total',
+      'issueDate',
+    ],
     group: 'Invoicing',
   },
   hooks: {

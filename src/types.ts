@@ -136,3 +136,11 @@ export interface SanitizedInvoicePdfConfig {
 
 /** Plugin type alias for Payload */
 export type InvoicePdfPlugin = (config: InvoicePdfConfig) => (incomingConfig: Config) => Config
+
+/** Resolved client data shape used by autofill and PDF generation */
+export interface ResolvedClientData {
+  name: string
+  email?: string
+  vatNumber?: string
+  address?: { street?: string; city?: string; postalCode?: string; country?: string }
+}

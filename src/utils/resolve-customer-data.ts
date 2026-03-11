@@ -1,4 +1,4 @@
-import type { SanitizedInvoicePdfConfig } from '../types.js'
+import type { SanitizedInvoicePdfConfig, ResolvedClientData } from '../types.js'
 
 /**
  * Traverse an object by dot-separated path (e.g., 'address.street').
@@ -34,18 +34,8 @@ const resolveCustomerName = (
 export const resolveCustomerData = (
   customerDoc: Record<string, any>,
   fieldMapping: NonNullable<SanitizedInvoicePdfConfig['customerFieldMapping']>,
-): {
-  name: string
-  email?: string
-  vatNumber?: string
-  address?: { street?: string; city?: string; postalCode?: string; country?: string }
-} => {
-  const result: {
-    name: string
-    email?: string
-    vatNumber?: string
-    address?: { street?: string; city?: string; postalCode?: string; country?: string }
-  } = {
+): ResolvedClientData => {
+  const result: ResolvedClientData = {
     name: resolveCustomerName(customerDoc, fieldMapping.name),
   }
 

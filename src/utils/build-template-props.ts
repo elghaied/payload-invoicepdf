@@ -1,4 +1,4 @@
-import type { InvoiceTemplateProps, SanitizedInvoicePdfConfig } from '../types.js'
+import type { InvoiceTemplateProps, SanitizedInvoicePdfConfig, ResolvedClientData } from '../types.js'
 
 export const buildTemplateProps = (args: {
   doc: Record<string, any>
@@ -6,12 +6,7 @@ export const buildTemplateProps = (args: {
   config: SanitizedInvoicePdfConfig
   type: 'invoice' | 'quote'
   logoDataUri?: string
-  resolvedClient?: {
-    name: string
-    email?: string
-    vatNumber?: string
-    address?: { street?: string; city?: string; postalCode?: string; country?: string }
-  }
+  resolvedClient?: ResolvedClientData
 }): InvoiceTemplateProps => {
   const { doc, shopInfo, config, type, logoDataUri, resolvedClient } = args
 

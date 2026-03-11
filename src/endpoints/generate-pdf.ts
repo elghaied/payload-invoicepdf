@@ -1,5 +1,5 @@
 import type { Endpoint } from 'payload'
-import type { SanitizedInvoicePdfConfig } from '../types.js'
+import type { SanitizedInvoicePdfConfig, ResolvedClientData } from '../types.js'
 import { buildTemplateProps } from '../utils/build-template-props.js'
 import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 import { renderPdfToBuffer } from '../utils/render-pdf.js'
@@ -59,21 +59,31 @@ export const createGeneratePdfEndpoint = (
       )
 
       // In reference mode, resolve client data from the customer relationship
-      let resolvedClient: Record<string, any> | undefined
+      let resolvedClient: ResolvedClientData | undefined
       if (!pluginConfig.inlineClientFields && pluginConfig.customerCollection && pluginConfig.customerFieldMapping) {
         const customerId = typeof (doc as any).client?.customer === 'object'
           ? (doc as any).client.customer.id
           : (doc as any).client?.customer
         if (customerId) {
-          const customerDoc = await req.payload.findByID({
-            collection: pluginConfig.customerCollection as any,
-            id: customerId,
-            depth: 0,
-            req,
-          })
-          resolvedClient = resolveCustomerData(
-            customerDoc as Record<string, any>,
-            pluginConfig.customerFieldMapping,
+          try {
+            const customerDoc = await req.payload.findByID({
+              collection: pluginConfig.customerCollection as any,
+              id: customerId,
+              depth: 0,
+              req,
+            })
+            resolvedClient = resolveCustomerData(
+              customerDoc as Record<string, any>,
+              pluginConfig.customerFieldMapping,
+            )
+          } catch {
+            req.payload.logger.error(
+              `Failed to fetch customer ${customerId} for PDF generation`,
+            )
+          }
+        } else {
+          req.payload.logger.warn(
+            `Reference mode: no customer selected, PDF will have empty client data`,
           )
         }
       }

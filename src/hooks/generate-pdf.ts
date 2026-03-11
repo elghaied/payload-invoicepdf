@@ -1,5 +1,5 @@
 import type { CollectionAfterChangeHook } from 'payload'
-import type { SanitizedInvoicePdfConfig } from '../types.js'
+import type { SanitizedInvoicePdfConfig, ResolvedClientData } from '../types.js'
 import { buildTemplateProps } from '../utils/build-template-props.js'
 import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 import { renderPdfToBuffer } from '../utils/render-pdf.js'
@@ -39,7 +39,7 @@ export const createGeneratePdfHook =
       )
 
       // In reference mode, resolve client data from the customer relationship
-      let resolvedClient: Record<string, any> | undefined
+      let resolvedClient: ResolvedClientData | undefined
       if (!pluginConfig.inlineClientFields && pluginConfig.customerCollection && pluginConfig.customerFieldMapping) {
         const customerId = typeof doc.client?.customer === 'object'
           ? doc.client.customer.id

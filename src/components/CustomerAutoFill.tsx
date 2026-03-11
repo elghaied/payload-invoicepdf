@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useRef } from 'react'
 import { useConfig, useField } from '@payloadcms/ui'
-import { getByPath } from '../utils/resolve-customer-data.js'
+import { resolveCustomerData } from '../utils/resolve-customer-data.js'
 
 type Props = {
   path: string
@@ -67,44 +67,15 @@ export const CustomerAutoFill: React.FC<Props> = ({
         return res.json()
       })
       .then((customer) => {
-        // Resolve name (string or string[])
-        if (mapping.name) {
-          const nameFields = Array.isArray(mapping.name) ? mapping.name : [mapping.name]
-          const name = nameFields
-            .map((field) => getByPath(customer, field))
-            .filter((v) => v != null && String(v).trim() !== '')
-            .map(String)
-            .join(' ')
-          if (name) setName(name)
-        }
-
-        if (mapping.email) {
-          const email = getByPath(customer, mapping.email)
-          if (email != null) setEmail(String(email))
-        }
-
-        if (mapping.vatNumber) {
-          const vatNumber = getByPath(customer, mapping.vatNumber)
-          if (vatNumber != null) setVatNumber(String(vatNumber))
-        }
-
-        if (mapping.address) {
-          if (mapping.address.street) {
-            const v = getByPath(customer, mapping.address.street)
-            if (v != null) setStreet(String(v))
-          }
-          if (mapping.address.city) {
-            const v = getByPath(customer, mapping.address.city)
-            if (v != null) setCity(String(v))
-          }
-          if (mapping.address.postalCode) {
-            const v = getByPath(customer, mapping.address.postalCode)
-            if (v != null) setPostalCode(String(v))
-          }
-          if (mapping.address.country) {
-            const v = getByPath(customer, mapping.address.country)
-            if (v != null) setCountry(String(v))
-          }
+        const resolved = resolveCustomerData(customer, mapping)
+        if (resolved.name) setName(resolved.name)
+        if (resolved.email != null) setEmail(resolved.email)
+        if (resolved.vatNumber != null) setVatNumber(resolved.vatNumber)
+        if (resolved.address) {
+          if (resolved.address.street != null) setStreet(resolved.address.street)
+          if (resolved.address.city != null) setCity(resolved.address.city)
+          if (resolved.address.postalCode != null) setPostalCode(resolved.address.postalCode)
+          if (resolved.address.country != null) setCountry(resolved.address.country)
         }
       })
       .catch(() => {

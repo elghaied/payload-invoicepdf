@@ -12,7 +12,13 @@ export const createQuotesCollection = (
   slug: 'quotes',
   admin: {
     useAsTitle: 'quoteNumber',
-    defaultColumns: ['quoteNumber', 'client.name', 'status', 'total', 'issueDate'],
+    defaultColumns: [
+      'quoteNumber',
+      pluginConfig.inlineClientFields !== false ? 'client.name' : 'client.customer',
+      'status',
+      'total',
+      'issueDate',
+    ],
     group: 'Invoicing',
   },
   hooks: {
