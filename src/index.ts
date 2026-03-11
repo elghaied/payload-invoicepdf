@@ -62,6 +62,16 @@ export const invoicePdf =
             },
           },
         },
+        {
+          name: 'pdfHistory',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#PdfHistory',
+            },
+          },
+        },
       )
     }
 
@@ -85,6 +95,16 @@ export const invoicePdf =
             position: 'sidebar',
             components: {
               Field: 'payload-invoicepdf/client#GeneratePdfButton',
+            },
+          },
+        },
+        {
+          name: 'pdfHistory',
+          type: 'ui',
+          admin: {
+            position: 'sidebar',
+            components: {
+              Field: 'payload-invoicepdf/client#PdfHistory',
             },
           },
         },

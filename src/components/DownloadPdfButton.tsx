@@ -1,20 +1,53 @@
 'use client'
 
-import React from 'react'
-import { useDocumentInfo, useFormFields } from '@payloadcms/ui'
+import React, { useEffect, useState } from 'react'
+import { useDocumentInfo, useFormFields, useConfig } from '@payloadcms/ui'
 
 export const DownloadPdfButton: React.FC = () => {
-  const { id, collectionSlug } = useDocumentInfo()
-  const pdfUrlField = useFormFields(([fields]) => fields['pdfUrl'])
+  const { id } = useDocumentInfo()
+  const { config } = useConfig()
+  const generatedPdfsField = useFormFields(([fields]) => fields['generatedPdfs'])
+  const [latestUrl, setLatestUrl] = useState<string | null>(null)
 
-  const pdfUrl = pdfUrlField?.value as string | undefined
+  const rawValue = generatedPdfsField?.value
+  const firstId = Array.isArray(rawValue) && rawValue.length > 0
+    ? (typeof rawValue[0] === 'object' ? rawValue[0].id ?? rawValue[0].value : rawValue[0])
+    : null
 
-  if (!pdfUrl || !id) return null
+  const serverUrl = config.serverURL || ''
+
+  useEffect(() => {
+    if (!firstId) {
+      setLatestUrl(null)
+      return
+    }
+
+    let cancelled = false
+    const fetchUrl = async () => {
+      try {
+        const res = await fetch(`${config.routes.api}/media/${firstId}`, {
+          credentials: 'include',
+        })
+        if (!cancelled && res.ok) {
+          const data = await res.json()
+          const url = data.url?.startsWith('http') ? data.url : `${serverUrl}${data.url}`
+          setLatestUrl(url)
+        }
+      } catch {
+        // silently fail
+      }
+    }
+
+    fetchUrl()
+    return () => { cancelled = true }
+  }, [firstId, config.routes.api, serverUrl])
+
+  if (!latestUrl || !id) return null
 
   return (
     <div style={{ marginBottom: 16 }}>
       <a
-        href={pdfUrl}
+        href={latestUrl}
         target="_blank"
         rel="noopener noreferrer"
         style={{
@@ -31,7 +64,7 @@ export const DownloadPdfButton: React.FC = () => {
           boxSizing: 'border-box',
         }}
       >
-        Download PDF
+        Download Latest PDF
       </a>
     </div>
   )
