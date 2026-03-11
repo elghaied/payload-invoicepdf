@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import type { SanitizedInvoicePdfConfig } from '../types.js'
 import { createAutoFillFromProductHook } from '../hooks/auto-fill-from-product.js'
+import { createAutoFillFromCustomerHook } from '../hooks/auto-fill-from-customer.js'
 import { createAutoNumberHook } from '../hooks/auto-number.js'
 import { createCalculateTotalsHook } from '../hooks/calculate-totals.js'
 import { createGeneratePdfHook } from '../hooks/generate-pdf.js'
@@ -16,6 +17,9 @@ export const createQuotesCollection = (
   },
   hooks: {
     beforeChange: [
+      ...(pluginConfig.customerCollection && pluginConfig.inlineClientFields
+        ? [createAutoFillFromCustomerHook(pluginConfig)]
+        : []),
       createAutoFillFromProductHook(pluginConfig),
       createAutoNumberHook({
         fieldName: 'quoteNumber',
@@ -72,19 +76,60 @@ export const createQuotesCollection = (
       name: 'client',
       type: 'group',
       fields: [
-        { name: 'name', type: 'text', required: true },
-        { name: 'email', type: 'email' },
-        {
-          name: 'address',
-          type: 'group',
-          fields: [
-            { name: 'street', type: 'text' },
-            { name: 'city', type: 'text' },
-            { name: 'postalCode', type: 'text' },
-            { name: 'country', type: 'text' },
-          ],
-        },
-        { name: 'vatNumber', type: 'text', label: 'VAT Number' },
+        ...(pluginConfig.customerCollection
+          ? [
+              {
+                name: 'customer',
+                type: 'relationship' as const,
+                relationTo: pluginConfig.customerCollection,
+                required: !pluginConfig.inlineClientFields,
+                admin: {
+                  description: 'Select a customer to auto-fill client details',
+                },
+                ...(pluginConfig.customerFilterOptions
+                  ? { filterOptions: pluginConfig.customerFilterOptions }
+                  : {}),
+              },
+            ]
+          : []),
+        ...(pluginConfig.customerCollection && pluginConfig.inlineClientFields
+          ? [
+              {
+                type: 'ui' as const,
+                name: 'autoFillFromCustomer',
+                label: ' ',
+                admin: {
+                  components: {
+                    Field: {
+                      path: 'payload-invoicepdf/client',
+                      exportName: 'CustomerAutoFill',
+                      clientProps: {
+                        customerFieldMapping: pluginConfig.customerFieldMapping,
+                        customerCollection: pluginConfig.customerCollection,
+                      },
+                    },
+                  },
+                },
+              },
+            ]
+          : []),
+        ...(pluginConfig.inlineClientFields !== false
+          ? [
+              { name: 'name', type: 'text' as const, required: true },
+              { name: 'email', type: 'email' as const },
+              {
+                name: 'address',
+                type: 'group' as const,
+                fields: [
+                  { name: 'street', type: 'text' as const },
+                  { name: 'city', type: 'text' as const },
+                  { name: 'postalCode', type: 'text' as const },
+                  { name: 'country', type: 'text' as const },
+                ],
+              },
+              { name: 'vatNumber', type: 'text' as const, label: 'VAT Number' },
+            ]
+          : []),
       ],
     },
     {
