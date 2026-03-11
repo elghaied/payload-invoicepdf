@@ -1,6 +1,7 @@
 import type { Endpoint } from 'payload'
 import type { SanitizedInvoicePdfConfig } from '../types.js'
 import { buildTemplateProps } from '../utils/build-template-props.js'
+import { resolveMediaToDataUri } from '../utils/resolve-media-to-data-uri.js'
 import { renderPdfToBuffer } from '../utils/render-pdf.js'
 
 export const createGeneratePdfEndpoint = (
@@ -50,11 +51,18 @@ export const createGeneratePdfEndpoint = (
         return Response.json({ error: `Template "${templateName}" not found` }, { status: 400 })
       }
 
+      const logoDataUri = resolveMediaToDataUri(
+        req.payload,
+        pluginConfig.mediaCollection,
+        (shopInfo as any).companyLogo,
+      )
+
       const props = buildTemplateProps({
         doc: doc as any,
         shopInfo: shopInfo as any,
         config: pluginConfig,
         type,
+        logoDataUri,
       })
 
       const pdfBuffer = await renderPdfToBuffer(template, props)

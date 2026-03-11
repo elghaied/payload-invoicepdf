@@ -5,8 +5,9 @@ export const buildTemplateProps = (args: {
   shopInfo: Record<string, any>
   config: SanitizedInvoicePdfConfig
   type: 'invoice' | 'quote'
+  logoDataUri?: string
 }): InvoiceTemplateProps => {
-  const { doc, shopInfo, config, type } = args
+  const { doc, shopInfo, config, type, logoDataUri } = args
 
   return {
     type,
@@ -18,7 +19,7 @@ export const buildTemplateProps = (args: {
 
     company: {
       name: shopInfo.companyName || '',
-      logo: shopInfo.companyLogo?.url || shopInfo.companyLogo || undefined,
+      logo: logoDataUri || shopInfo.companyLogo?.url || undefined,
       address: {
         street: shopInfo.address?.street || '',
         city: shopInfo.address?.city || '',
