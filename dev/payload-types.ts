@@ -163,7 +163,7 @@ export interface Invoice {
   id: string;
   invoiceNumber?: string | null;
   status?: ('draft' | 'sent' | 'paid' | 'overdue' | 'cancelled') | null;
-  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold') | null;
+  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
   issueDate?: string | null;
   dueDate?: string | null;
   client: {
@@ -180,11 +180,17 @@ export interface Invoice {
   items?:
     | {
         /**
-         * Optional — select a product to auto-fill fields
+         * Select a product to auto-fill description and price
          */
         product?: (string | null) | Product;
+        /**
+         * Auto-filled when a product is selected. Changing the product overrides this value.
+         */
         description: string;
         quantity: number;
+        /**
+         * Auto-filled when a product is selected. Changing the product overrides this value.
+         */
         unitPrice: number;
         taxRate?: number | null;
         lineTotal?: number | null;
@@ -207,7 +213,7 @@ export interface Quote {
   id: string;
   quoteNumber?: string | null;
   status?: ('draft' | 'sent' | 'accepted' | 'rejected' | 'expired') | null;
-  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold') | null;
+  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
   issueDate?: string | null;
   validUntil?: string | null;
   client: {
@@ -224,11 +230,17 @@ export interface Quote {
   items?:
     | {
         /**
-         * Optional — select a product to auto-fill fields
+         * Select a product to auto-fill description and price
          */
         product?: (string | null) | Product;
+        /**
+         * Auto-filled when a product is selected. Changing the product overrides this value.
+         */
         description: string;
         quantity: number;
+        /**
+         * Auto-filled when a product is selected. Changing the product overrides this value.
+         */
         unitPrice: number;
         taxRate?: number | null;
         lineTotal?: number | null;

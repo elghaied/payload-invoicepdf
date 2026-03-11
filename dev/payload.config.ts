@@ -4,6 +4,8 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { invoicePdf, builtInTemplates } from 'payload-invoicepdf'
+
+import { corporateTemplate } from './templates/corporate.js'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
@@ -72,7 +74,7 @@ const buildConfigWithMemoryDB = async () => {
           ref: 'sku',
           description: 'description',
         },
-        templates: builtInTemplates,
+        templates: [...builtInTemplates, corporateTemplate],
       }),
     ],
     secret: process.env.PAYLOAD_SECRET || 'test-secret_key',
