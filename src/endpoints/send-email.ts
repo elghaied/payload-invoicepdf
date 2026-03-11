@@ -1,4 +1,6 @@
 import crypto from 'crypto'
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
 import type { Endpoint } from 'payload'
 import type { SanitizedInvoicePdfConfig } from '../types.js'
 import { buildEmailTemplateProps } from '../utils/build-email-template-props.js'
@@ -98,7 +100,7 @@ export const createSendEmailEndpoint = (
           docData.acceptToken = acceptToken
         }
 
-        viewUrl = `${baseUrl}/quotes/${id}/accept?token=${docData.acceptToken}`
+        viewUrl = `${baseUrl}/quotes/${id}?token=${docData.acceptToken}`
       }
 
       // Build props and render email HTML
@@ -134,17 +136,28 @@ export const createSendEmailEndpoint = (
 
         if (mediaDoc) {
           const mediaData = mediaDoc as any
-          // Construct full file path for local storage, or use URL for cloud
-          const fileUrl = mediaData.url?.startsWith('http')
-            ? mediaData.url
-            : `${req.payload.config.serverURL || ''}${mediaData.url}`
+          const attachment: Record<string, any> = { filename: mediaData.filename }
 
-          emailOptions.attachments = [
-            {
-              filename: mediaData.filename,
-              path: fileUrl,
-            },
-          ]
+          if (mediaData.url?.startsWith('http')) {
+            // Cloud storage: URL is already absolute
+            attachment.path = mediaData.url
+          } else if (mediaData.filename) {
+            // Local storage: read file from disk using staticDir
+            const collectionConfig = req.payload.config.collections.find(
+              (c) => c.slug === pluginConfig.mediaCollection,
+            )
+            const uploadConfig = collectionConfig?.upload
+            if (uploadConfig && typeof uploadConfig === 'object' && typeof uploadConfig.staticDir === 'string') {
+              const filePath = resolve(uploadConfig.staticDir, mediaData.filename)
+              attachment.content = readFileSync(filePath)
+            } else if (req.payload.config.serverURL) {
+              attachment.path = `${req.payload.config.serverURL}${mediaData.url}`
+            }
+          }
+
+          if (attachment.content || attachment.path) {
+            emailOptions.attachments = [attachment]
+          }
         }
       }
 
