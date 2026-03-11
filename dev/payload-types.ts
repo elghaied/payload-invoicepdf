@@ -227,9 +227,6 @@ export interface Invoice {
   taxTotal?: number | null;
   total?: number | null;
   generatedPdfs?: (string | Media)[] | null;
-  invoiceNumber?: string | null;
-  status?: ('draft' | 'sent' | 'paid' | 'overdue' | 'cancelled') | null;
-  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
   lastSentAt?: string | null;
   sendHistory?:
     | {
@@ -242,6 +239,9 @@ export interface Invoice {
         id?: string | null;
       }[]
     | null;
+  invoiceNumber?: string | null;
+  status?: ('draft' | 'sent' | 'paid' | 'overdue' | 'cancelled') | null;
+  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
   sourceQuote?: (string | null) | Quote;
   updatedAt: string;
   createdAt: string;
@@ -323,9 +323,6 @@ export interface Quote {
   tokenExpiresAt?: string | null;
   rejectionReason?: string | null;
   generatedPdfs?: (string | Media)[] | null;
-  quoteNumber?: string | null;
-  status?: ('draft' | 'sent' | 'accepted' | 'rejected' | 'expired') | null;
-  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
   lastSentAt?: string | null;
   sendHistory?:
     | {
@@ -338,6 +335,9 @@ export interface Quote {
         id?: string | null;
       }[]
     | null;
+  quoteNumber?: string | null;
+  status?: ('draft' | 'sent' | 'accepted' | 'rejected' | 'expired') | null;
+  template?: ('Classic' | 'Modern' | 'Minimal' | 'Bold' | 'Corporate') | null;
   relatedInvoices?: (string | Invoice)[] | null;
   updatedAt: string;
   createdAt: string;
@@ -520,9 +520,6 @@ export interface InvoicesSelect<T extends boolean = true> {
   taxTotal?: T;
   total?: T;
   generatedPdfs?: T;
-  invoiceNumber?: T;
-  status?: T;
-  template?: T;
   lastSentAt?: T;
   sendHistory?:
     | T
@@ -535,6 +532,9 @@ export interface InvoicesSelect<T extends boolean = true> {
         sentBy?: T;
         id?: T;
       };
+  invoiceNumber?: T;
+  status?: T;
+  template?: T;
   sourceQuote?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -582,9 +582,6 @@ export interface QuotesSelect<T extends boolean = true> {
   tokenExpiresAt?: T;
   rejectionReason?: T;
   generatedPdfs?: T;
-  quoteNumber?: T;
-  status?: T;
-  template?: T;
   lastSentAt?: T;
   sendHistory?:
     | T
@@ -597,6 +594,9 @@ export interface QuotesSelect<T extends boolean = true> {
         sentBy?: T;
         id?: T;
       };
+  quoteNumber?: T;
+  status?: T;
+  template?: T;
   relatedInvoices?: T;
   updatedAt?: T;
   createdAt?: T;

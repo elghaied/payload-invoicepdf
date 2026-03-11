@@ -1,31 +1,33 @@
-# Live Document Link — Setup Guide
+# Quote Acceptance — Live Document Link
 
-The "Live Document Link" email template sends your client a link to view and respond to a quote online. When they click the link, they see the full quote PDF and can accept or decline it directly. Accepting auto-creates an invoice.
+Let clients view, accept, or decline quotes via a secure link. Accepting auto-creates a draft invoice.
+
+## How It Works
+
+1. You send a quote email using the **Live Document Link** template
+2. The client receives an email with a "View Quote" button
+3. The button links to a page on your frontend (you build this page)
+4. The page displays the quote PDF full-screen with accept/decline buttons
+5. **Accept** → quote status becomes "accepted", a draft invoice is created
+6. **Decline** → quote status becomes "rejected", optional reason is stored
+
+The link contains a secure token. No login required — the token IS the authorization.
 
 ## Prerequisites
 
-Set `NEXT_PUBLIC_SERVER_URL` (or `NEXT_PUBLIC_SITE_URL`) in your `.env`:
+Set your server URL in `.env`:
 
 ```env
 NEXT_PUBLIC_SERVER_URL=https://yourdomain.com
 ```
 
-## How It Works
+Without this, the plugin cannot generate the view URL for the email.
 
-1. You send a quote email using the "Live Document Link" template
-2. The client receives an email with a "View Quote" button
-3. The button links to a page on YOUR frontend (you build this)
-4. The page displays the quote PDF full-screen with accept/decline buttons in a fixed bottom bar
-5. Accepting calls the plugin's API → sets quote to "accepted" and creates a draft invoice
-6. Declining calls the plugin's API → sets quote to "rejected" with an optional reason
+## Frontend Setup
 
-The link URL contains a secure token. The token IS the authorization — no login required. Each quote gets unique accept and reject tokens.
+You need one page in your Next.js app with two files: a server component that validates the token and fetches the PDF, and a client component for the action buttons.
 
-## Frontend Page
-
-You need a single page in your Next.js app. The page is a server component that validates the token and fetches the PDF URL directly from the database, with a client component for the accept/decline buttons.
-
-### Quote Page: `app/quotes/[id]/page.tsx`
+### Server Component: `app/quotes/[id]/page.tsx`
 
 ```tsx
 import { getPayload } from 'payload'
@@ -47,7 +49,6 @@ export default async function QuotePage({ params, searchParams }: Args) {
 
   const payload = await getPayload({ config })
 
-  // Fetch quote and validate token
   let quote: Record<string, any> | null = null
   try {
     quote = (await payload.findByID({ collection: 'quotes', id, depth: 1 })) as any
@@ -62,7 +63,7 @@ export default async function QuotePage({ params, searchParams }: Args) {
     return <p>This link has expired. Please contact us for a new quote.</p>
   }
 
-  // Get latest PDF URL from generatedPdfs
+  // Get latest PDF URL
   let pdfUrl: string | null = null
   const pdfs = Array.isArray(quote.generatedPdfs) ? quote.generatedPdfs : []
   const latestPdf = pdfs[0]
@@ -102,7 +103,7 @@ export default async function QuotePage({ params, searchParams }: Args) {
 }
 ```
 
-### Actions Component: `app/quotes/[id]/QuoteActions.tsx`
+### Client Component: `app/quotes/[id]/QuoteActions.tsx`
 
 ```tsx
 'use client'
@@ -168,20 +169,34 @@ export function QuoteActions({ quoteId, token }: { quoteId: string; token: strin
 ## API Endpoints
 
 | Endpoint | Method | Body | Description |
-|---|---|---|---|
+|----------|--------|------|-------------|
 | `/api/invoicepdf/quotes/:id/accept` | POST | `{ token }` | Accepts the quote and creates a draft invoice |
 | `/api/invoicepdf/quotes/:id/reject` | POST | `{ token, reason? }` | Rejects the quote with optional reason |
 
-Both endpoints validate the token and return appropriate status codes:
-- `200` — success
-- `401` — invalid token
-- `409` — quote already accepted/rejected/expired
-- `410` — token expired
+Response codes:
+
+| Code | Meaning |
+|------|---------|
+| `200` | Success |
+| `401` | Invalid token |
+| `409` | Quote already accepted/rejected/expired |
+| `410` | Token expired |
 
 ## Token Security
 
-- Each token is 32 bytes of cryptographically random data (256-bit entropy)
+- 32 bytes of cryptographically random data (256-bit entropy)
 - Tokens expire based on the quote's `validUntil` date, or 30 days from creation
-- Once a quote is accepted, rejected, or expired, the tokens can no longer be used
+- Once a quote is accepted, rejected, or expired, tokens can no longer be used
 - The token IS the authorization — anyone with the link can act on the quote
 - Treat quote emails like password reset links: don't share them publicly
+
+## Quote-to-Invoice Conversion
+
+When a client accepts a quote:
+
+1. A new invoice is created with the quote's template, client details, line items, and notes
+2. The invoice's `sourceQuote` field links back to the original quote
+3. The quote's status is set to "accepted"
+4. The new invoice appears in the quote's **Related Invoices** sidebar
+
+The created invoice starts in `draft` status so you can review it before sending.

@@ -1,218 +1,90 @@
-# Payload Plugin Template
+<p align="center">
+  <img src="assets/payloadinvoicepdf.png" alt="payload-invoicepdf" width="420" />
+</p>
 
-A template repo to create a [Payload CMS](https://payloadcms.com) plugin.
+<p align="center">
+  Professional PDF invoices and quotes for Payload CMS
+</p>
 
-Payload is built with a robust infrastructure intended to support Plugins with ease. This provides a simple, modular, and reusable way for developers to extend the core capabilities of Payload.
+<p align="center">
+  <a href="https://www.npmjs.com/package/payload-invoicepdf"><img src="https://img.shields.io/npm/v/payload-invoicepdf" alt="npm version" /></a>
+  <a href="https://github.com/payload-invoicepdf/payload-invoicepdf/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/payload-invoicepdf" alt="license" /></a>
+  <img src="https://img.shields.io/badge/payload-3.x-blue" alt="Payload 3.x" />
+</p>
 
-To build your own Payload plugin, all you need is:
+---
 
-- An understanding of the basic Payload concepts
-- And some JavaScript/Typescript experience
+A Payload CMS 3.x plugin that adds complete invoice and quote management — JSX-based PDF templates, email sending, quote acceptance workflows, customer autofill, and a rich admin UI — out of the box.
 
-## Background
+## Features
 
-Here is a short recap on how to integrate plugins with Payload, to learn more visit the [plugin overview page](https://payloadcms.com/docs/plugins/overview).
+- **PDF Generation** — 4 built-in templates (Classic, Modern, Minimal, Bold) rendered with `@react-pdf/renderer`. Create custom templates with JSX.
+- **Invoices & Quotes** — Full collections with auto-numbering (`INV-2026-0001`), status tracking, line items, tax calculation, and due dates.
+- **Email Sending** — Send invoices/quotes via email with PDF attachments or live document links. Tracks send history per document.
+- **Quote Acceptance** — Clients receive a secure link to view, accept, or decline quotes. Accepting auto-creates a draft invoice.
+- **Customer Autofill** — Connect your existing customer collection. Select a customer and client fields fill automatically.
+- **Product Autofill** — Link your product catalog. Add a product to a line item and description + price populate instantly.
+- **PDF History** — Every generated PDF is stored and versioned. Browse and download previous versions from the admin.
+- **Admin UI** — Tabbed document views, sidebar actions (download, generate, send, convert), email composer drawer, and related document links.
 
-### How to install a plugin
+## Quick Start
 
-To install any plugin, simply add it to your payload.config() in the Plugin array.
+```bash
+npm install payload-invoicepdf
+# or
+pnpm add payload-invoicepdf
+```
 
 ```ts
-import myPlugin from 'my-plugin'
+// payload.config.ts
+import { invoicePdf, builtInTemplates } from 'payload-invoicepdf'
 
-export const config = buildConfig({
+export default buildConfig({
+  // ...your config
   plugins: [
-    // You can pass options to the plugin
-    myPlugin({
-      enabled: true,
+    invoicePdf({
+      productCollection: 'products',
+      productFieldMapping: {
+        name: 'name',
+        price: 'price',
+      },
+      templates: builtInTemplates,
     }),
   ],
 })
 ```
 
-### Initialization
+That's it. You now have `invoices` and `quotes` collections with PDF generation, a `shop-info` global for your company details, and sidebar buttons for downloading, generating, and emailing documents.
 
-The initialization process goes in the following order:
+## Built-in PDF Templates
 
-1. Incoming config is validated
-2. **Plugins execute**
-3. Default options are integrated
-4. Sanitization cleans and validates data
-5. Final config gets initialized
+| Template | Style |
+|----------|-------|
+| **Classic** | Traditional business invoice with clean lines |
+| **Modern** | Sleek, minimal layout with accent colors |
+| **Minimal** | Ultra-clean whitespace-heavy design |
+| **Bold** | Strong color header, high contrast |
 
-## Building the Plugin
+Select a template per document, or set a default. Build your own with `@react-pdf/renderer` — see the [Custom Templates Guide](documentations/custom-templates.md).
 
-When you build a plugin, you are purely building a feature for your project and then abstracting it outside of the project.
+## Documentation
 
-### Template Files
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](documentations/getting-started.md) | Installation, configuration, and your first invoice |
+| [Configuration Reference](documentations/configuration-reference.md) | All config options with examples |
+| [PDF Templates](documentations/pdf-templates.md) | Built-in templates and how to select them |
+| [Custom Templates](documentations/custom-templates.md) | Build your own PDF and email templates with JSX |
+| [Email Sending](documentations/email-sending.md) | Email setup, templates, and send history |
+| [Quote Acceptance](documentations/live-document-link.md) | Secure link workflow for client quote responses |
+| [Customer Autofill](documentations/customer-autofill.md) | Connect your customer collection for autofill |
 
-In the Payload [plugin template](https://github.com/payloadcms/payload/tree/main/templates/plugin), you will see a common file structure that is used across all plugins:
+## Requirements
 
-1. root folder
-2. /src folder
-3. /dev folder
+- Payload CMS `^3.79.0`
+- Node.js `^18.20.2` or `>=20.9.0`
+- A `media` collection with uploads enabled (or specify a custom `mediaCollection`)
 
-#### Root
+## License
 
-In the root folder, you will see various files that relate to the configuration of the plugin. We set up our environment in a similar manner in Payload core and across other projects, so hopefully these will look familiar:
-
-- **README**.md\* - This contains instructions on how to use the template. When you are ready, update this to contain instructions on how to use your Plugin.
-- **package**.json\* - Contains necessary scripts and dependencies. Overwrite the metadata in this file to describe your Plugin.
-- .**eslint**.config.js - Eslint configuration for reporting on problematic patterns.
-- .**gitignore** - List specific untracked files to omit from Git.
-- .**prettierrc**.json - Configuration for Prettier code formatting.
-- **tsconfig**.json - Configures the compiler options for TypeScript
-- .**swcrc** - Configuration for SWC, a fast compiler that transpiles and bundles TypeScript.
-- **vitest**.config.js - Config file for Vitest, defining how tests are run and how modules are resolved
-
-**IMPORTANT\***: You will need to modify these files.
-
-#### Dev
-
-In the dev folder, you’ll find a basic payload project, created with `npx create-payload-app` and the blank template.
-
-**IMPORTANT**: Make a copy of the `.env.example` file and rename it to `.env`. Update the `DATABASE_URL` to match the database you are using and your plugin name. Update `PAYLOAD_SECRET` to a unique string.
-**You will not be able to run `pnpm/yarn dev` until you have created this `.env` file.**
-
-`myPlugin` has already been added to the `payload.config()` file in this project.
-
-```ts
-plugins: [
-  myPlugin({
-    collections: {
-      posts: true,
-    },
-  }),
-]
-```
-
-Later when you rename the plugin or add additional options, **make sure to update it here**.
-
-You may wish to add collections or expand the test project depending on the purpose of your plugin. Just make sure to keep this dev environment as simplified as possible - users should be able to install your plugin without additional configuration required.
-
-When you’re ready to start development, initiate the project with `pnpm/npm/yarn dev` and pull up [http://localhost:3000](http://localhost:3000) in your browser.
-
-#### Src
-
-Now that we have our environment setup and we have a dev project ready to - it’s time to build the plugin!
-
-**index.ts**
-
-The essence of a Payload plugin is simply to extend the payload config - and that is exactly what we are doing in this file.
-
-```ts
-export const myPlugin =
-  (pluginOptions: MyPluginConfig) =>
-  (config: Config): Config => {
-    // do cool stuff with the config here
-
-    return config
-  }
-```
-
-First, we receive the existing payload config along with any plugin options.
-
-From here, you can extend the config as you wish.
-
-Finally, you return the config and that is it!
-
-##### Spread Syntax
-
-Spread syntax (or the spread operator) is a feature in JavaScript that uses the dot notation **(...)** to spread elements from arrays, strings, or objects into various contexts.
-
-We are going to use spread syntax to allow us to add data to existing arrays without losing the existing data. It is crucial to spread the existing data correctly – else this can cause adverse behavior and conflicts with Payload config and other plugins.
-
-Let’s say you want to build a plugin that adds a new collection:
-
-```ts
-config.collections = [
-  ...(config.collections || []),
-  // Add additional collections here
-]
-```
-
-First we spread the `config.collections` to ensure that we don’t lose the existing collections, then you can add any additional collections just as you would in a regular payload config.
-
-This same logic is applied to other properties like admin, hooks, globals:
-
-```ts
-config.globals = [
-  ...(config.globals || []),
-  // Add additional globals here
-]
-
-config.hooks = {
-  ...(incomingConfig.hooks || {}),
-  // Add additional hooks here
-}
-```
-
-Some properties will be slightly different to extend, for instance the onInit property:
-
-```ts
-import { onInitExtension } from './onInitExtension' // example file
-
-config.onInit = async (payload) => {
-  if (incomingConfig.onInit) await incomingConfig.onInit(payload)
-  // Add additional onInit code by defining an onInitExtension function
-  onInitExtension(pluginOptions, payload)
-}
-```
-
-If you wish to add to the onInit, you must include the **async/await**. We don’t use spread syntax in this case, instead you must await the existing `onInit` before running additional functionality.
-
-In the template, we have stubbed out some addition `onInit` actions that seeds in a document to the `plugin-collection`, you can use this as a base point to add more actions - and if not needed, feel free to delete it.
-
-##### Types.ts
-
-If your plugin has options, you should define and provide types for these options.
-
-```ts
-export type MyPluginConfig = {
-  /**
-   * List of collections to add a custom field
-   */
-  collections?: Partial<Record<CollectionSlug, true>>
-  /**
-   * Disable the plugin
-   */
-  disabled?: boolean
-}
-```
-
-If possible, include JSDoc comments to describe the options and their types. This allows a developer to see details about the options in their editor.
-
-##### Testing
-
-Having a test suite for your plugin is essential to ensure quality and stability. **Vitest** is a fast, modern testing framework that works seamlessly with Vite and supports TypeScript out of the box.
-
-Vitest organizes tests into test suites and cases, similar to other testing frameworks. We recommend creating individual tests based on the expected behavior of your plugin from start to finish.
-
-Writing tests with Vitest is very straightforward, and you can learn more about how it works in the [Vitest documentation.](https://vitest.dev/)
-
-For this template, we stubbed out `int.spec.ts` in the `dev` folder where you can write your tests.
-
-```ts
-describe('Plugin tests', () => {
-  // Create tests to ensure expected behavior from the plugin
-  it('some condition that must be met', () => {
-   // Write your test logic here
-   expect(...)
-  })
-})
-```
-
-## Best practices
-
-With this tutorial and the plugin template, you should have everything you need to start building your own plugin.
-In addition to the setup, here are other best practices aim we follow:
-
-- **Providing an enable / disable option:** For a better user experience, provide a way to disable the plugin without uninstalling it. This is especially important if your plugin adds additional webpack aliases, this will allow you to still let the webpack run to prevent errors.
-- **Include tests in your GitHub CI workflow**: If you’ve configured tests for your package, integrate them into your workflow to run the tests each time you commit to the plugin repository. Learn more about [how to configure tests into your GitHub CI workflow.](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs)
-- **Publish your finished plugin to NPM**: The best way to share and allow others to use your plugin once it is complete is to publish an NPM package. This process is straightforward and well documented, find out more [creating and publishing a NPM package here.](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/).
-- **Add payload-plugin topic tag**: Apply the tag **payload-plugin **to your GitHub repository. This will boost the visibility of your plugin and ensure it gets listed with [existing payload plugins](https://github.com/topics/payload-plugin).
-- **Use [Semantic Versioning](https://semver.org/) (SemVar)** - With the SemVar system you release version numbers that reflect the nature of changes (major, minor, patch). Ensure all major versions reference their Payload compatibility.
-
-# Questions
-
-Please contact [Payload](mailto:dev@payloadcms.com) with any questions about using this plugin template.
+MIT
