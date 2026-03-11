@@ -39,16 +39,19 @@ export const invoicePdf =
     config.endpoints.push(createConvertToInvoiceEndpoint(pluginConfig))
 
     // Admin components — tabbed UI + sidebar buttons
+    const isSidebarField = (f: any) => 'admin' in f && f.admin?.position === 'sidebar'
+
     const invoiceCol = config.collections.find((c) => c.slug === 'invoices')
     if (invoiceCol) {
-      const existingFields = [...invoiceCol.fields]
+      const sidebarFields = invoiceCol.fields.filter(isSidebarField)
+      const contentFields = invoiceCol.fields.filter((f) => !isSidebarField(f))
       invoiceCol.fields = [
         {
           type: 'tabs',
           tabs: [
             {
               label: 'Invoice',
-              fields: existingFields,
+              fields: contentFields,
             },
             {
               label: 'PDF History',
@@ -66,6 +69,7 @@ export const invoicePdf =
             },
           ],
         },
+        ...sidebarFields,
         {
           name: 'downloadPdf',
           type: 'ui',
@@ -91,14 +95,15 @@ export const invoicePdf =
 
     const quotesCol = config.collections.find((c) => c.slug === 'quotes')
     if (quotesCol) {
-      const existingFields = [...quotesCol.fields]
+      const sidebarFields = quotesCol.fields.filter(isSidebarField)
+      const contentFields = quotesCol.fields.filter((f) => !isSidebarField(f))
       quotesCol.fields = [
         {
           type: 'tabs',
           tabs: [
             {
               label: 'Quote',
-              fields: existingFields,
+              fields: contentFields,
             },
             {
               label: 'PDF History',
@@ -116,6 +121,7 @@ export const invoicePdf =
             },
           ],
         },
+        ...sidebarFields,
         {
           name: 'downloadPdf',
           type: 'ui',
